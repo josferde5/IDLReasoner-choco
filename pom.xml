@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>IDLReasoner-choco</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <name>IDLReasoner-choco</name>
+    <description>A choco-based Java library for analyzing IDL specifications</description>
+
+    <developers>
+        <developer>
+            <id>jfdelarosa</id>
+            <name>José Ramón Fernández de la Rosa</name>
+            <email>jfdelarosa@us.es</email>
+            <organization>University of Seville</organization>
+            <organizationUrl>http://www.us.es</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>danimilles</id>
+            <name>Daniel Sánchez Baleyrón</name>
+            <email>dansanbal@alum.us.es</email>
+            <organization>University of Seville</organization>
+            <organizationUrl>http://www.us.es</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>4.10.6</version>
+        </dependency>
+    </dependencies>
+
+</project>

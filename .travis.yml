@@ -1,0 +1,8 @@
+language: java
+addons:
+  sonarcloud:
+    organization: josferde5
+    token:
+      secure: F1VljSvQaoGimh6eFuaAJU+kr7Tb8vedTEuLwsopMsoZVllEYSHty7Ky16nmpigONG02Njr/eQl97lNlQZJcCrJ2vebXFhS2EJHVkkwM3WuJcOeQrZiZgGsLtXBzgMzfiTMp3LWXxa063zhE5U4WCs4nZ1EzX2jQy6c7PfxN7sMK3r6aqj9oAWh6cYMRjKcNiqZBerryzjC3/fNNhKv1l5Dn2tjaA3/zVJU99h07Y11PvlujpyIKycQBpkKw0MEh/VILe8fHJ6zDmDk64qCaKhjJ59uL2FSseHGqeGA/omjfPwD3ol/lQWTGt1utgWq1pk9od9CDn+qSInoyvUU5MbsrPmOGBy5CggHmFxBQ7KB5ygS86QoS0nFg6zhy5yEWsL67LW1RitnA/jn5wnZb82vo2blmOl/1JL5+6aTzCI8vr7XQ/JmnbLcSZe5RO3XFv3y0gAwHH99EFOifSZ9fVl/S3hmjSB29vHOLtJ0TduYtVA985CwUxZxdGMqNhG39Eg3SpaRyquWYoXk9+Xbd/fi+6lGTjguTbBgZl+Uism6ljNufNAn9hdsZuWgocyT/1ItDUPUdr/WsVysReRN3V7qcBUYVLnMhZ9VLFpEIKXQMrBGA+AlEEIOekPg/SkEWKjd8TJF2/lq13upalh3dZ6CAKqQzpKEdCVJQY+2zEr8=
+script:
+  - mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=josferde5_IDLReasoner-choco
