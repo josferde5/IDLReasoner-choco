@@ -5,3 +5,6 @@
 /.vscode/
 /.settings/
 /target/
+/bin/
+/.classpath
+/.project
