@@ -1,4 +1,4 @@
-package idlreasoner.utils;
+package idlreasonerchoco.configuration;
 
 public enum ErrorType {
 	ERROR_READING_PROPERTIES("Error reading the properties: ");

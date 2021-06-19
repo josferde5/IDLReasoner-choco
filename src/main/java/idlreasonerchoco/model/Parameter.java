@@ -1,4 +1,4 @@
-package idlreasoner.model;
+package idlreasonerchoco.model;
 
 public class Parameter {
 
