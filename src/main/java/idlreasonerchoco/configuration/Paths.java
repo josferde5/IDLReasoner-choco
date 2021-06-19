@@ -3,6 +3,7 @@ package idlreasonerchoco.configuration;
 import java.util.Date;
 
 public class Paths {
+	
 	public final String ROOT;
 	public final String RESOURCES_PATH;
 	public final String IDL_AUX_FOLDER;

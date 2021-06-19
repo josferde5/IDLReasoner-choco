@@ -9,12 +9,15 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import idlreasonerchoco.utils.ExceptionManager;
+import idlreasonerchoco.utils.FileManager;
+
 public class IDLConfiguration {
 	
 	private final static Logger LOG = Logger.getLogger(IDLConfiguration.class);
 	
-	private Properties properties;
-	private Paths paths;
+	private final Properties properties;
+	private final Paths paths;
 	
 	public Properties chargeProperties() throws IDLException {
 		try {
@@ -23,11 +26,12 @@ public class IDLConfiguration {
 			
 			return properties;
 		} catch (Exception e) {
-			throw new IDLException(ErrorType.ERROR_READING_PROPERTIES.toString(), e);
+			ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_PROPERTIES.toString(), e);
+			return null;
 		}
 	}
 	
-    public void initFiles() {
+    public void initFiles() throws IDLException {
     	createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.STRING_INT_MAPPING_FILE);
         appendContentToFile(this.paths.IDL_AUX_FOLDER + Files.STRING_INT_MAPPING_FILE, "{ }");
         createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.IDL_AUX_FILE);
@@ -37,12 +41,17 @@ public class IDLConfiguration {
     }
 	
 	public IDLConfiguration() throws IDLException {
-		PropertyConfigurator.configure(paths.RESOURCES_PATH + Files.LOG4J_PROPERTIES);
-		
 		this.paths = new Paths();
+		PropertyConfigurator.configure(paths.RESOURCES_PATH + Files.LOG4J_PROPERTIES);	
 		this.properties = chargeProperties();
-		
 		initFiles();
 	}
-	
+
+	public Properties getProperties() {
+		return properties;
+	}
+
+	public Paths getPaths() {
+		return paths;
+	}
 }
