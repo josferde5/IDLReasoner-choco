@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.configuration.model;
 
 public enum Properties {
 	SOLVER("solver"),

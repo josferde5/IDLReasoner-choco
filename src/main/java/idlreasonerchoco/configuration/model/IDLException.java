@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.configuration.model;
 
 public class IDLException extends Exception {
 	private static final long serialVersionUID = 6228831805487458374L;

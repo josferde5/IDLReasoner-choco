@@ -7,12 +7,14 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import idlreasonerchoco.configuration.ErrorType;
-import idlreasonerchoco.configuration.IDLException;
+import idlreasonerchoco.configuration.model.ErrorType;
+import idlreasonerchoco.configuration.model.IDLException;
 
 public class FileManager {
 	
 	private final static Logger LOG = Logger.getLogger(FileManager.class);
+	
+	public final static String NEW_LINE = "\n";
 
     public static File createFileIfNotExists(String filePath) throws IDLException {
     	File file = new File(filePath);

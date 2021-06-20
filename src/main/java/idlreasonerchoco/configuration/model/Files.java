@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.configuration.model;
 
 public enum Files {
     BASE_CONSTRAINTS_FILE("base_constraints.mzn"),

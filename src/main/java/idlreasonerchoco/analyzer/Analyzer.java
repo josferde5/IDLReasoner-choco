@@ -1,15 +1,12 @@
 package idlreasonerchoco.analyzer;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
-import idlreasonerchoco.configuration.ErrorType;
 import idlreasonerchoco.configuration.IDLConfiguration;
-import idlreasonerchoco.configuration.IDLException;
+import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.mapper.Mapper;
-import idlreasonerchoco.model.APISpec;
-import idlreasonerchoco.model.IDLSpec;
-import idlreasonerchoco.model.Parameter;
-import idlreasonerchoco.model.Request;
 import idlreasonerchoco.resolutor.Resolutor;
 
 public class Analyzer {
@@ -23,59 +20,36 @@ public class Analyzer {
 	private boolean lastRandomReqWasValid;
 	private boolean needReloadConstraintsFile;
 	
-	public Analyzer() throws IDLException {
-		this.configuration = new IDLConfiguration();
-		this.needReloadConstraintsFile = true;
-		this.lastRandomReqWasValid = false;
-		this.resolutor = null;
-		this.mapper = null;
-	}
-	/*
-	 * Una instancia del Analyzer sirve para solucionar las dependencias de un método,
-	 * en nuestro caso el specificationType siempre va a ser (de momento) OAS por lo que podemos prescindir del parámetro (DE MOMENTO),
-	 * en el IDLPath irá el archivo con las restricciones ** (Mismas consideraciones que para el APISpecPath)
-	 * en ApiSpecPath ira el path de la especificación de la API, habría que repensar de que forma pasarla, ya que actualmente al usar solo
-	 * la librería en RESTest sirve pasar el PATH del archivo, pero si queremos exponerlo como servicio necesitamos otro constructor
-	 * que reciba la especificación de alguna otra forma ya que no tendremos la especificación en local,
-	 * los parámetros relativos a la operación que va a analizarse de momento no tienen ninguna consideración.
-	 * Clase de interés en IDLReasoner -> MapperCreator (Ahora mismo en RESTest se carga una vez la especificación del archivo y 
-	 * luego otra en la librería, por lo que atendiendo a lo que decía en APISpecPath, deberíamos pasar la especificación de otra 
-	 * forma para evitar este tipo de redundacia de operaciones)
-	 */
+	//TODO constructor que reciba la especificación por parámetros y no el path
 	public Analyzer(String specificationType, String idlPath, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
-		this.configuration = new IDLConfiguration();
+		this.configuration = new IDLConfiguration(specificationType, idlPath, apiSpecificationPath, operationPath, operationType);
 		this.needReloadConstraintsFile = true;
 		this.lastRandomReqWasValid = false;
-		this.resolutor = null;
-		this.mapper = null;
+		this.resolutor = new Resolutor(configuration);
+		this.mapper = new Mapper(configuration);
 	}
 	
-	public Boolean isValidRequest(IDLSpec idlSpecs, APISpec apiSpecs, Request request) {
+	public Boolean isValidRequest() {
 		return null;
 	}
 	
-	public Boolean isConsistent(IDLSpec idlSpecs, APISpec apiSpecs) {
+	public Boolean isConsistent() {
 		return null;
 	}
 	
-	public Boolean isDeadParameter(IDLSpec idlSpecs, APISpec apiSpecs, Parameter request) {
+	public Boolean isDeadParameter() {
 		return null;
 	}
 	
-	public Boolean isFalseOptional(IDLSpec idlSpecs, APISpec apiSpecs, Parameter request) {
+	public Boolean isFalseOptional() {
 		return null;
 	}
 	
-	public Boolean isValidIDL(IDLSpec idlSpecs, APISpec apiSpecs) {
+	public Boolean isValidIDL() {
 		return null;
 	}
 	
-	public Request getRandomRequest(IDLSpec idlSpecs, APISpec apiSpecs) {
+	public Map<String, String> getRandomRequest() {
 		return null;
-	}
-	
-	
-	public static void main(String... args) throws IDLException {
-		new Analyzer();
 	}
 }

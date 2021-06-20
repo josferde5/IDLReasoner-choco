@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.configuration.model;
 
 import java.util.Date;
 

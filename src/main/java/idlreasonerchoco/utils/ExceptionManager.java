@@ -2,7 +2,7 @@ package idlreasonerchoco.utils;
 
 import org.apache.log4j.Logger;
 
-import idlreasonerchoco.configuration.IDLException;
+import idlreasonerchoco.configuration.model.IDLException;
 
 public class ExceptionManager {
 
@@ -11,7 +11,15 @@ public class ExceptionManager {
 		throw new IDLException(error.toString(), exception);
 	}
 	
+	public static void rethrow(Logger logger, String error) throws IDLException {
+		rethrow(logger, error, null);
+	}
+	
 	public static void log(Logger logger, String error, Exception exception) {
 		logger.error(error.toString(), exception);
+	}
+	
+	public static void log(Logger logger, String error) {
+		logger.error(error.toString());
 	}
 }
