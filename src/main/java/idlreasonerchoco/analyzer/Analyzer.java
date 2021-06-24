@@ -11,7 +11,7 @@ import idlreasonerchoco.resolutor.Resolutor;
 
 public class Analyzer {
 
-	private final static Logger LOG = Logger.getLogger(Analyzer.class);
+	private static final Logger LOG = Logger.getLogger(Analyzer.class);
 	
 	private final Mapper mapper;
 	private final Resolutor resolutor;
@@ -20,7 +20,7 @@ public class Analyzer {
 	private boolean lastRandomReqWasValid;
 	private boolean needReloadConstraintsFile;
 	
-	//TODO constructor que reciba la especificaciÛn por par·metros y no el path
+	//TODO constructor que reciba la especificaci√≥n por par√°metros y no el path
 	public Analyzer(String specificationType, String idlPath, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
 		this.configuration = new IDLConfiguration(specificationType, idlPath, apiSpecificationPath, operationPath, operationType);
 		this.needReloadConstraintsFile = true;

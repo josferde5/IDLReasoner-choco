@@ -26,10 +26,10 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class Mapper {
 
-	private final static Logger LOG = Logger.getLogger(Mapper.class);
+	private static final Logger LOG = Logger.getLogger(Mapper.class);
 
-	private final static String OAS_SPECIFICATION_TYPE = "oas";
-	private final static String X_DEPENDENCIES = "x-dependencies";
+	private static final String OAS_SPECIFICATION_TYPE = "oas";
+	private static final String X_DEPENDENCIES = "x-dependencies";
 
 	private final IDLConfiguration configuration;
 
@@ -62,7 +62,7 @@ public class Mapper {
         try {
         	List<String> IDLdeps = (List<String>) oasOp.getExtensions().get(X_DEPENDENCIES);
             
-            if (IDLdeps.size() != 0) {
+            if (!IDLdeps.isEmpty()) {
                 String allDeps = String.join(FileManager.NEW_LINE, IDLdeps);
                 FileManager.appendContentToFile(this.configuration.getPaths().IDL_AUX_FOLDER + Files.IDL_AUX_FILE, allDeps);
             }
