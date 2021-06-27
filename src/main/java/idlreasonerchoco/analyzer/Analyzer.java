@@ -20,6 +20,10 @@ public class Analyzer {
 	private boolean lastRandomReqWasValid;
 	private boolean needReloadConstraintsFile;
 	
+	public Analyzer(String specificationType, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
+		this(specificationType, null, apiSpecificationPath, operationPath, operationType);
+	}
+	
 	//TODO constructor que reciba la especificación por parámetros y no el path
 	public Analyzer(String specificationType, String idlPath, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
 		this.configuration = new IDLConfiguration(specificationType, idlPath, apiSpecificationPath, operationPath, operationType);
@@ -52,4 +56,5 @@ public class Analyzer {
 	public Map<String, String> getRandomRequest() {
 		return null;
 	}
+	
 }

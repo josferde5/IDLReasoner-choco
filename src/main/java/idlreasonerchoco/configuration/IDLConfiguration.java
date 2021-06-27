@@ -39,16 +39,6 @@ public class IDLConfiguration {
 		}
 	}
 
-	//TODO cambiar archivos por objetos, revisar y dejar solo los que usaremos
-	public void initFiles() throws IDLException {
-		createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.STRING_INT_MAPPING_FILE);
-		appendContentToFile(this.paths.IDL_AUX_FOLDER + Files.STRING_INT_MAPPING_FILE, "{ }");
-		createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.IDL_AUX_FILE);
-		createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.BASE_CONSTRAINTS_FILE);
-		createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.BASE_DATA_FILE);
-		createFileIfNotExists(this.paths.IDL_AUX_FOLDER + Files.DATA_FILE);
-	}
-
 	public IDLConfiguration(String specificationType, String idlPath, String apiSpecificationPath, String operationPath,
 			String operationType) throws IDLException {
 		this.specificationType = specificationType;
@@ -60,8 +50,6 @@ public class IDLConfiguration {
 
 		PropertyConfigurator.configure(paths.RESOURCES_PATH + Files.LOG4J_PROPERTIES);
 		this.properties = chargeProperties();
-
-		initFiles();
 	}
 
 	public Properties getProperties() {

@@ -1,8 +1,17 @@
 package idlreasonerchoco.mapper;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.objective.ParetoOptimizer;
+import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -11,9 +20,10 @@ import com.google.inject.Injector;
 
 import es.us.isa.idl.IDLStandaloneSetupGenerated;
 import es.us.isa.idl.generator.IDLGenerator;
+import es.us.isa.idl.generator.Response;
+import idlreasonerchoco.analyzer.Analyzer;
 import idlreasonerchoco.configuration.IDLConfiguration;
 import idlreasonerchoco.configuration.model.ErrorType;
-import idlreasonerchoco.configuration.model.Files;
 import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.model.OperationType;
 import idlreasonerchoco.utils.ExceptionManager;
@@ -32,6 +42,10 @@ public class Mapper {
 	private final static String X_DEPENDENCIES = "x-dependencies";
 
 	private final IDLConfiguration configuration;
+	
+	private String idlFromOas;
+	private Map<String, Integer> stringToIntMap;
+	private Model chocoModel;
 
 	public Mapper(IDLConfiguration configuration) throws IDLException {
 		this.configuration = configuration;
@@ -48,8 +62,8 @@ public class Mapper {
 		this.mapVariables();
 	}
 
-	//TODO mapVariables y cambiar los archivos por objetos
 	private void mapVariables() {
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,29 +77,25 @@ public class Mapper {
         	List<String> IDLdeps = (List<String>) oasOp.getExtensions().get(X_DEPENDENCIES);
             
             if (IDLdeps.size() != 0) {
-                String allDeps = String.join(FileManager.NEW_LINE, IDLdeps);
-                FileManager.appendContentToFile(this.configuration.getPaths().IDL_AUX_FOLDER + Files.IDL_AUX_FILE, allDeps);
+              	this.idlFromOas = String.join(FileManager.NEW_LINE, IDLdeps);
             }
-            
         } catch (Exception e) {
         	ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_DEPENDECIES.toString(), e);
         }
 	}
 
 	public void generateConstraintsFromIDL() throws IDLException {
-		IDLGenerator idlGenerator = new IDLGenerator();
-		idlGenerator.setFolderPath(this.configuration.getPaths().IDL_AUX_FOLDER);
-		
+		IDLGenerator idlGenerator = new IDLGenerator();		
 		Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
 		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		
-		String path = this.configuration.getIdlPath() == null
-				? this.configuration.getPaths().IDL_AUX_FOLDER + Files.IDL_AUX_FILE
-				: this.configuration.getPaths().IDL_AUX_FOLDER + this.configuration.getIdlPath();
-		Resource resource = resourceSet.getResource(URI.createFileURI(path), true);
+		Resource resource = resourceSet.createResource(URI.createURI("dummy:/dummy.idl"));
+		InputStream in = new ByteArrayInputStream(this.idlFromOas.getBytes());
 		
 		try {
-			idlGenerator.doGenerate(resource, null, null);
+			resource.load(in, resourceSet.getLoadOptions());
+			Response response = idlGenerator.doGenerateChocoModel(resource, null, null);
+			this.stringToIntMap = response.getStringToIntMap();
+			this.chocoModel = response.getChocoModel();
 		} catch (Exception e) {
 			ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
 		}
@@ -94,7 +104,7 @@ public class Mapper {
 	private Operation getOasOperation(OpenAPI openAPISpec, String operationPath, String operationType) {
 		PathItem item = openAPISpec.getPaths().get(operationPath);
 
-		switch (OperationType.valueOf(operationType)) {
+		switch (OperationType.valueOf(operationType.toUpperCase())) {
 		case GET:
 			return item.getGet();
 		case DELETE:
@@ -114,4 +124,13 @@ public class Mapper {
 			return null;
 		}
 	}
+
+	public Model getChocoModel() {
+		return chocoModel;
+	}
+
+	public Map<String, Integer> getStringToIntMap() {
+		return stringToIntMap;
+	}
+	
 }

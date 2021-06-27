@@ -20,6 +20,6 @@ public class ExceptionManager {
 	}
 	
 	public static void log(Logger logger, String error) {
-		logger.error(error.toString());
+		log(logger, error, null);
 	}
 }
