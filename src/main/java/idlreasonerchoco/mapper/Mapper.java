@@ -4,11 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.variables.IntVar;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -32,13 +37,14 @@ import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class Mapper {
-
 	private static final Logger LOG = Logger.getLogger(Mapper.class);
-
+	
+	private static final String FORM_DATA = "formData";
 	private static final String OAS_SPECIFICATION_TYPE = "oas";
 	private static final String X_DEPENDENCIES = "x-dependencies";
 	private static final String NEW_LINE = "\n";
 	private static final String DUMMY_URI = "dummy:/dummy.idl";
+	private static final String APPLICATION_TYPE = "application/x-www-form-urlencoded";
 
 	private final IDLConfiguration configuration;
 	
@@ -70,7 +76,7 @@ public class Mapper {
         options.setResolveFully(true);
         this.openApiSpecification = new OpenAPIV3Parser().readContents(this.configuration.getApiSpecification()).getOpenAPI();
         this.operation = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
-        this.parameters = this.operation.getParameters(); // NullPointerException would be thrown on purpose, to stop program
+        this.parameters = this.operation.getParameters(); 
         if (this.operation.getRequestBody() != null) {
             if (this.parameters == null)
                 this.parameters = new ArrayList<>();
@@ -98,14 +104,14 @@ public class Mapper {
         Map<String, Schema> formDataBodyProperties;
 
         try {
-            formDataBody = operation.getRequestBody().getContent().get("application/x-www-form-urlencoded").getSchema();
+            formDataBody = operation.getRequestBody().getContent().get(APPLICATION_TYPE).getSchema();
             formDataBodyProperties = formDataBody.getProperties();
         } catch (NullPointerException e) {
             return formDataParameters;
         }
 
         for (Map.Entry<String, Schema> property: formDataBodyProperties.entrySet()) {
-            Parameter parameter = new Parameter().name(property.getKey()).in("formData").required(formDataBody.getRequired().contains(property.getKey()));
+            Parameter parameter = new Parameter().name(property.getKey()).in(FORM_DATA).required(formDataBody.getRequired().contains(property.getKey()));
             parameter.setSchema(new Schema().type(property.getValue().getType()));
             parameter.getSchema().setEnum(property.getValue().getEnum());
             formDataParameters.add(parameter);
@@ -126,6 +132,30 @@ public class Mapper {
 			Response response = idlGenerator.doGenerateChocoModel(resource, null, null);
 			this.stringToIntMap = response.getStringToIntMap();
 			this.chocoModel = response.getChocoModel();
+			
+			//TODO Borrar Codigo para ver las soluciones
+			Solver solver = chocoModel.getSolver();
+			Solution solution = new Solution(chocoModel);
+			Set<IntVar> ints = new HashSet<>();
+			Set<String> st = new HashSet<>();
+			if(solver.solve()) {
+				for(IntVar i : solution.record().retrieveIntVars(true)) {
+					if(i.getName() != null && !i.getName().contains("cst") && !i.getName().contains("EQ") && !i.getName().contains("REIF") && !i.getName().contains("IV") && !st.contains(i.getName())) {
+						ints.add(i);
+						st.add(i.getName());
+					}
+				}
+				for(IntVar i : ints) {
+					System.out.println(i.getName() + "=" + i.getValue());
+				}
+			}
+			if(solver.hasEndedUnexpectedly()){
+			    System.out.println("The solver could not find a solution nor prove that none exists in the given limits");
+			}else {
+			    System.out.println("The solver has proved the problem has no solution");
+			}
+			
+			int breakpoint = 1;
 		} catch (Exception e) {
 			ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
 		}
