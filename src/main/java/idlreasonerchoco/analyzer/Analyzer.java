@@ -20,12 +20,12 @@ public class Analyzer {
 	private boolean lastRandomReqWasValid;
 	private boolean needReloadConstraintsFile;
 	
-	public Analyzer(String specificationType, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
-		this(specificationType, null, apiSpecificationPath, operationPath, operationType);
+	public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
+		this(specificationType, apiSpecification, operationPath, operationType, true, null);
 	}
 	
-	public Analyzer(String specificationType, String idlPath, String apiSpecificationPath, String operationPath, String operationType) throws IDLException {
-		this.configuration = new IDLConfiguration(specificationType, idlPath, apiSpecificationPath, operationPath, operationType);
+	public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean chargeFromFile, String idlProperties) throws IDLException {
+		this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, chargeFromFile, idlProperties);
 		this.needReloadConstraintsFile = true;
 		this.lastRandomReqWasValid = false;
 		this.resolutor = new Resolutor(configuration);

@@ -1,17 +1,12 @@
 package idlreasonerchoco.mapper;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.objective.ParetoOptimizer;
-import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -21,13 +16,11 @@ import com.google.inject.Injector;
 import es.us.isa.idl.IDLStandaloneSetupGenerated;
 import es.us.isa.idl.generator.IDLGenerator;
 import es.us.isa.idl.generator.Response;
-import idlreasonerchoco.analyzer.Analyzer;
 import idlreasonerchoco.configuration.IDLConfiguration;
 import idlreasonerchoco.configuration.model.ErrorType;
 import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.model.OperationType;
 import idlreasonerchoco.utils.ExceptionManager;
-import idlreasonerchoco.utils.FileManager;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -40,10 +33,13 @@ public class Mapper {
 
 	private static final String OAS_SPECIFICATION_TYPE = "oas";
 	private static final String X_DEPENDENCIES = "x-dependencies";
+	private static final String NEW_LINE = "\n";
+	private static final String DUMMY_URI = "dummy:/dummy.idl";
 
 	private final IDLConfiguration configuration;
 	
 	private String idlFromOas;
+	private OpenAPI openApiSpecification;
 	private Map<String, Integer> stringToIntMap;
 	private Model chocoModel;
 
@@ -54,10 +50,7 @@ public class Mapper {
 			ExceptionManager.rethrow(LOG, ErrorType.BAD_SPECIFICATION.toString());
 		}
 
-		if (this.configuration.getIdlPath() == null) {
-			this.generateIDLFromOAS();
-		}
-		
+		this.generateIDLFromOAS();		
 		this.generateConstraintsFromIDL();
 		this.mapVariables();
 	}
@@ -70,14 +63,14 @@ public class Mapper {
 	public void generateIDLFromOAS() throws IDLException {
         ParseOptions options = new ParseOptions();
         options.setResolveFully(true);
-        OpenAPI oasSpec = new OpenAPIV3Parser().read(this.configuration.getApiSpecificationPath());
-        Operation oasOp = getOasOperation(oasSpec, this.configuration.getOperationPath(), this.configuration.getOperationType());
+        this.openApiSpecification = new OpenAPIV3Parser().readContents(this.configuration.getApiSpecification()).getOpenAPI();
+        Operation oasOp = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
 
         try {
         	List<String> IDLdeps = (List<String>) oasOp.getExtensions().get(X_DEPENDENCIES);
             
             if (IDLdeps.size() != 0) {
-              	this.idlFromOas = String.join(FileManager.NEW_LINE, IDLdeps);
+              	this.idlFromOas = String.join(NEW_LINE, IDLdeps);
             }
         } catch (Exception e) {
         	ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_DEPENDECIES.toString(), e);
@@ -88,7 +81,7 @@ public class Mapper {
 		IDLGenerator idlGenerator = new IDLGenerator();		
 		Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
 		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		Resource resource = resourceSet.createResource(URI.createURI("dummy:/dummy.idl"));
+		Resource resource = resourceSet.createResource(URI.createURI(DUMMY_URI));
 		InputStream in = new ByteArrayInputStream(this.idlFromOas.getBytes());
 		
 		try {
@@ -101,8 +94,8 @@ public class Mapper {
 		}
 	}
 
-	private Operation getOasOperation(OpenAPI openAPISpec, String operationPath, String operationType) {
-		PathItem item = openAPISpec.getPaths().get(operationPath);
+	private Operation getOasOperation(String operationPath, String operationType) {
+		PathItem item = this.openApiSpecification.getPaths().get(operationPath);
 
 		switch (OperationType.valueOf(operationType.toUpperCase())) {
 		case GET:

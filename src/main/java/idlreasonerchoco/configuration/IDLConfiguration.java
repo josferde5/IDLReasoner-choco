@@ -1,9 +1,7 @@
 package idlreasonerchoco.configuration;
 
-import static idlreasonerchoco.utils.FileManager.appendContentToFile;
-import static idlreasonerchoco.utils.FileManager.createFileIfNotExists;
-
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -13,63 +11,65 @@ import idlreasonerchoco.configuration.model.ErrorType;
 import idlreasonerchoco.configuration.model.Files;
 import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.configuration.model.Paths;
+import idlreasonerchoco.configuration.model.PropertiesType;
 import idlreasonerchoco.utils.ExceptionManager;
 
 public class IDLConfiguration {
 
     private static final Logger LOG = Logger.getLogger(IDLConfiguration.class);
 
-    private final Properties properties;
-    private final Paths paths;
+    
     private final String specificationType;
-    private final String idlPath;
-    private final String apiSpecificationPath;
     private final String operationPath;
     private final String operationType;
+    private String apiSpecification;
+    private Properties properties;
 
-    public Properties chargeProperties() throws IDLException {
-        try (FileInputStream input = new FileInputStream(paths.RESOURCES_PATH + Files.IDL_REASONER_PROPERTIES)) {
-            Properties props = new Properties();
-            props.load(input);
-
-            return props;
-        } catch (Exception e) {
-            ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_PROPERTIES.toString(), e);
-            return null;
-        }
-    }
-
-	public IDLConfiguration(String specificationType, String idlPath, String apiSpecificationPath, String operationPath,
-			String operationType) throws IDLException {
+	public IDLConfiguration(String specificationType, String apiSpecification, String operationPath,
+			String operationType, boolean chargeFromFile, String properties) throws IDLException {
 		this.specificationType = specificationType;
-		this.idlPath = idlPath;
-		this.apiSpecificationPath = apiSpecificationPath;
 		this.operationPath = operationPath;
 		this.operationType = operationType;
-		this.paths = new Paths();
-
-		PropertyConfigurator.configure(paths.RESOURCES_PATH + Files.LOG4J_PROPERTIES);
-		this.properties = chargeProperties();
+		PropertyConfigurator.configure(Paths.RESOURCES_PATH.toString() + Files.LOG4J_PROPERTIES);
+		chargeProperties(properties);	
+		chargeSpecification(apiSpecification, chargeFromFile);
 	}
 
-    public Properties getProperties() {
-        return properties;
-    }
+	private void chargeSpecification(String apiSpecification, boolean chargeFromFile) throws IDLException {
+		if(chargeFromFile) {
+			try {
+				this.apiSpecification = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(apiSpecification)));
+	        } catch (Exception e) {
+	            ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_SPECIFICATION.toString(), e);
+	        }
+		}
+	}
 
-    public Paths getPaths() {
-        return paths;
+    public void chargeProperties(String properties) throws IDLException {
+        try (InputStream input = new ByteArrayInputStream(properties.getBytes())) {
+        	Properties props = new Properties();
+            props.load(input);
+            this.properties = props;
+        } catch (Exception e) {
+            ExceptionManager.log(LOG, ErrorType.ERROR_READING_PROPERTIES.toString(), e);
+            Properties props = new Properties();
+            props.setProperty(PropertiesType.SOLVER.toString(), PropertiesType.SOLVER.getDefaultValue());
+            props.setProperty(PropertiesType.MAX_RESULTS.toString(), PropertiesType.MAX_RESULTS.getDefaultValue());
+            props.setProperty(PropertiesType.TIMEOUT.toString(), PropertiesType.TIMEOUT.getDefaultValue());
+            this.properties = props;
+        }
+    }
+	
+	public Properties getProperties() {
+        return properties;
     }
 
     public String getSpecificationType() {
         return specificationType;
     }
-
-    public String getIdlPath() {
-        return idlPath;
-    }
-
-    public String getApiSpecificationPath() {
-        return apiSpecificationPath;
+    
+    public String getApiSpecification() {
+        return apiSpecification;
     }
 
     public String getOperationPath() {
