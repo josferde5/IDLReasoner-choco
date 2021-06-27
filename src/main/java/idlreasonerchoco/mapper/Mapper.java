@@ -2,6 +2,8 @@ package idlreasonerchoco.mapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +26,8 @@ import idlreasonerchoco.utils.ExceptionManager;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
@@ -40,6 +44,8 @@ public class Mapper {
 	
 	private String idlFromOas;
 	private OpenAPI openApiSpecification;
+	private Operation operation;
+	private List<Parameter> parameters;
 	private Map<String, Integer> stringToIntMap;
 	private Model chocoModel;
 
@@ -49,25 +55,33 @@ public class Mapper {
 		if (!this.configuration.getSpecificationType().toLowerCase().equals(OAS_SPECIFICATION_TYPE)) {
 			ExceptionManager.rethrow(LOG, ErrorType.BAD_SPECIFICATION.toString());
 		}
-
+		
+		this.readOpenApiSpecification();
 		this.generateIDLFromOAS();		
 		this.generateConstraintsFromIDL();
 		this.mapVariables();
 	}
 
 	private void mapVariables() {
-		
 	}
 
-	@SuppressWarnings("unchecked")
-	public void generateIDLFromOAS() throws IDLException {
-        ParseOptions options = new ParseOptions();
+	private void readOpenApiSpecification() {
+		ParseOptions options = new ParseOptions();
         options.setResolveFully(true);
         this.openApiSpecification = new OpenAPIV3Parser().readContents(this.configuration.getApiSpecification()).getOpenAPI();
-        Operation oasOp = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
-
+        this.operation = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
+        this.parameters = this.operation.getParameters(); // NullPointerException would be thrown on purpose, to stop program
+        if (this.operation.getRequestBody() != null) {
+            if (this.parameters == null)
+                this.parameters = new ArrayList<>();
+            this.parameters.addAll(getFormDataParameters(this.operation));
+        }
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void generateIDLFromOAS() throws IDLException {
         try {
-        	List<String> IDLdeps = (List<String>) oasOp.getExtensions().get(X_DEPENDENCIES);
+        	List<String> IDLdeps = (List<String>) operation.getExtensions().get(X_DEPENDENCIES);
             
             if (IDLdeps.size() != 0) {
               	this.idlFromOas = String.join(NEW_LINE, IDLdeps);
@@ -76,8 +90,31 @@ public class Mapper {
         	ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_DEPENDECIES.toString(), e);
         }
 	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Collection<Parameter> getFormDataParameters(Operation operation) {
+        List<Parameter> formDataParameters = new ArrayList<>();
+        Schema formDataBody;
+        Map<String, Schema> formDataBodyProperties;
 
-	public void generateConstraintsFromIDL() throws IDLException {
+        try {
+            formDataBody = operation.getRequestBody().getContent().get("application/x-www-form-urlencoded").getSchema();
+            formDataBodyProperties = formDataBody.getProperties();
+        } catch (NullPointerException e) {
+            return formDataParameters;
+        }
+
+        for (Map.Entry<String, Schema> property: formDataBodyProperties.entrySet()) {
+            Parameter parameter = new Parameter().name(property.getKey()).in("formData").required(formDataBody.getRequired().contains(property.getKey()));
+            parameter.setSchema(new Schema().type(property.getValue().getType()));
+            parameter.getSchema().setEnum(property.getValue().getEnum());
+            formDataParameters.add(parameter);
+        }
+
+        return formDataParameters;
+    }
+
+	private void generateConstraintsFromIDL() throws IDLException {
 		IDLGenerator idlGenerator = new IDLGenerator();		
 		Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
 		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
