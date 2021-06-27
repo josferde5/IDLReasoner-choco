@@ -17,27 +17,27 @@ import idlreasonerchoco.utils.ExceptionManager;
 
 public class IDLConfiguration {
 
-	private final static Logger LOG = Logger.getLogger(IDLConfiguration.class);
+    private static final Logger LOG = Logger.getLogger(IDLConfiguration.class);
 
-	private final Properties properties;
-	private final Paths paths;
-	private final String specificationType;
-	private final String idlPath;
-	private final String apiSpecificationPath;
-	private final String operationPath;
-	private final String operationType;
+    private final Properties properties;
+    private final Paths paths;
+    private final String specificationType;
+    private final String idlPath;
+    private final String apiSpecificationPath;
+    private final String operationPath;
+    private final String operationType;
 
-	public Properties chargeProperties() throws IDLException {
-		try {
-			Properties properties = new Properties();
-			properties.load(new FileInputStream(paths.RESOURCES_PATH + Files.IDL_REASONER_PROPERTIES));
+    public Properties chargeProperties() throws IDLException {
+        try (FileInputStream input = new FileInputStream(paths.RESOURCES_PATH + Files.IDL_REASONER_PROPERTIES)) {
+            Properties props = new Properties();
+            props.load(input);
 
-			return properties;
-		} catch (Exception e) {
-			ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_PROPERTIES.toString(), e);
-			return null;
-		}
-	}
+            return props;
+        } catch (Exception e) {
+            ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_PROPERTIES.toString(), e);
+            return null;
+        }
+    }
 
 	public IDLConfiguration(String specificationType, String idlPath, String apiSpecificationPath, String operationPath,
 			String operationType) throws IDLException {
@@ -52,31 +52,31 @@ public class IDLConfiguration {
 		this.properties = chargeProperties();
 	}
 
-	public Properties getProperties() {
-		return properties;
-	}
+    public Properties getProperties() {
+        return properties;
+    }
 
-	public Paths getPaths() {
-		return paths;
-	}
+    public Paths getPaths() {
+        return paths;
+    }
 
-	public String getSpecificationType() {
-		return specificationType;
-	}
+    public String getSpecificationType() {
+        return specificationType;
+    }
 
-	public String getIdlPath() {
-		return idlPath;
-	}
+    public String getIdlPath() {
+        return idlPath;
+    }
 
-	public String getApiSpecificationPath() {
-		return apiSpecificationPath;
-	}
+    public String getApiSpecificationPath() {
+        return apiSpecificationPath;
+    }
 
-	public String getOperationPath() {
-		return operationPath;
-	}
+    public String getOperationPath() {
+        return operationPath;
+    }
 
-	public String getOperationType() {
-		return operationType;
-	}
+    public String getOperationType() {
+        return operationType;
+    }
 }
