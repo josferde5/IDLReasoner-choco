@@ -8,7 +8,8 @@ public enum ErrorType {
 	BAD_SPECIFICATION("Specification type not supported"),
 	ERROR_WRITING_FILE("Error writing file"), 
 	ERROR_READING_SPECIFICATION("Error reading API specification"), 
-	ERROR_MAPPING_CONSTRAINTS_FROM_IDL("Error mapping constraints from IDL Mapper");
+	ERROR_MAPPING_CONSTRAINTS_FROM_IDL("Error mapping constraints from IDL Mapper"),
+	ERROR_IN_PARAMETER_TYPE("The parameter type is not allowed for IDLReasoner to work");
 	
 	private String msg;
 	
