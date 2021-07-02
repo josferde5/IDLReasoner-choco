@@ -4,19 +4,22 @@ import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 import idlreasonerchoco.configuration.IDLConfiguration;
+import idlreasonerchoco.mapper.Mapper;
 
 public class Resolutor {
 
 	private final IDLConfiguration configuration;
+	private final Mapper mapper;
 	private boolean randomSearch;
 	
-	public Resolutor(IDLConfiguration configuration) {
-		this(configuration, false);
+	public Resolutor(IDLConfiguration configuration, Mapper mapper) {
+		this(configuration, mapper, false);
 	}
 	
-	public Resolutor(IDLConfiguration configuration, boolean randomSearch) {
+	public Resolutor(IDLConfiguration configuration, Mapper mapper, boolean randomSearch) {
 		this.configuration = configuration;
 		this.randomSearch = randomSearch;
+		this.mapper = mapper;
 	}
 	
 	public boolean isRandomSearch() {

@@ -5,15 +5,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -25,7 +21,6 @@ import com.google.inject.Injector;
 
 import es.us.isa.idl.IDLStandaloneSetupGenerated;
 import es.us.isa.idl.generator.IDLGenerator;
-import es.us.isa.idl.generator.ReservedWords;
 import es.us.isa.idl.generator.Response;
 import idlreasonerchoco.configuration.IDLConfiguration;
 import idlreasonerchoco.configuration.model.ErrorType;
@@ -33,6 +28,7 @@ import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.model.OperationType;
 import idlreasonerchoco.model.ParameterType;
 import idlreasonerchoco.utils.ExceptionManager;
+import idlreasonerchoco.utils.Utils;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -86,30 +82,30 @@ public class Mapper {
 	        for (Parameter parameter: parameters) {
 	            String paramType = parameter.getSchema().getType();
 	            List<?> paramEnum = parameter.getSchema().getEnum();
-	            BoolVar varParamSet = this.getVariable(this.parseIDLParamName(parameter.getName() + "Set"), BoolVar.class, false).asBoolVar();
+	            BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName() + "Set"), BoolVar.class, false).asBoolVar();
 
 	            if(paramType.equals(ParameterType.BOOLEAN.toString())) {
-	            	this.getVariable(this.parseIDLParamName(parameter.getName()), BoolVar.class, false);
+	            	this.getVariable(Utils.parseIDLParamName(parameter.getName()), BoolVar.class, false);
 	            	
 	            } else if(paramEnum != null) {
 	            	
 	                if (paramType.equals(ParameterType.STRING.toString())) {
                         int[] domain = paramEnum.stream().mapToInt(x->this.stringToInt(x.toString())).toArray();
-                        this.getVariable(this.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
+                        this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
                         
 	                } else if (paramType.equals(ParameterType.INTEGER.toString())) {
 	                	int[] domain = paramEnum.stream().mapToInt(x->Integer.parseInt(x.toString())).toArray();
-                        this.getVariable(this.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
+                        this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
                         
 	                } else {
 	                	throw new IDLException(ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
 	                }
 	                
 	            } else if(paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString())) {
-                    this.getVariable(this.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
                     
 	            } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
-                    this.getVariable(this.parseIDLParamName(parameter.getName()), IntVar.class, false);
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false);
                     
 	            } else {
 	                throw new IDLException(ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
@@ -182,33 +178,6 @@ public class Mapper {
 			Response response = idlGenerator.doGenerateChocoModel(resource);
 			this.stringToIntMap = response.getStringToIntMap();
 			this.chocoModel = response.getChocoModel();
-			
-			//TODO Borrar Codigo para ver las soluciones
-			Solver solver = chocoModel.getSolver();
-			Solution solution = new Solution(chocoModel);
-			Set<IntVar> ints = new HashSet<>();
-			Set<String> st = new HashSet<>();
-			while(solver.solve()) {
-				for(IntVar i : solution.record().retrieveIntVars(true)) {
-					if(i.getName() != null && !i.getName().contains("cst") && !i.getName().contains("EQ") && !i.getName().contains("REIF") && !i.getName().contains("IV") && !st.contains(i.getName())) {
-						ints.add(i);
-						st.add(i.getName());
-					}
-				}
-				for(IntVar i : ints) {
-					System.out.println(i.getName() + EQUALS + i.getValue());
-				}
-				solver.setRestartOnSolutions();
-
-				System.out.println("=========");
-			} 
-			if(solver.hasEndedUnexpectedly()){
-			    System.out.println("The solver could not find a solution nor prove that none exists in the given limits");
-			} else {
-			    System.out.println("The solver has proved the problem has no solution");
-			}
-			
-			int breakpoint = 1;
 		} catch (Exception e) {
 			ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
 		}
@@ -236,13 +205,6 @@ public class Mapper {
 			ExceptionManager.log(LOG, ErrorType.BAD_OAS_OPERATION.toString());
 			return null;
 		}
-	}
-
-	private String parseIDLParamName(String paramName) {
-		String parsedParamName = paramName.replaceAll("^\\[|\\]$", "").replaceAll("[\\.\\-\\/\\:\\[\\]]", "_");
-		if (ReservedWords.RESERVED_WORDS.contains(parsedParamName))
-			parsedParamName += "_R";
-		return parsedParamName;
 	}
 
 	private Integer stringToInt(String stringValue) {
@@ -280,6 +242,26 @@ public class Mapper {
 
 	public Map<String, Integer> getStringToIntMap() {
 		return stringToIntMap;
+	}
+
+	public String getIdlFromOas() {
+		return idlFromOas;
+	}
+
+	public OpenAPI getOpenApiSpecification() {
+		return openApiSpecification;
+	}
+
+	public Operation getOperation() {
+		return operation;
+	}
+	
+	public List<Parameter> getParameters() {
+		return parameters;
+	}
+
+	public Map<String, Variable> getVariablesMap() {
+		return variablesMap;
 	}
 	
 }
