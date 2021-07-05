@@ -167,7 +167,7 @@ public class Mapper {
     }
 
     private void generateConstraintsFromIDL() throws IDLException {
-        IDLGenerator idlGenerator = new IDLGenerator(stringToIntMap, chocoModel);
+        IDLGenerator idlGenerator = new IDLGenerator(stringToIntMap, variablesMap, chocoModel);
         Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
         XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
         Resource resource = resourceSet.createResource(URI.createURI(DUMMY_URI));
