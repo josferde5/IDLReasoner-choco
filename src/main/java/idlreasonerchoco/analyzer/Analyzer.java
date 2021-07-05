@@ -67,7 +67,7 @@ public class Analyzer {
         if (mapper.getChocoModel().getSolver().solve()) {
             request = new HashMap<>();
             for (Parameter parameter : mapper.getParameters()) {
-                BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName() + "Set")).asBoolVar();
+                BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
                 if (varSet.getValue() == 1) {
                     IntVar paramVar = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName())).asIntVar();
                     request.put(parameter.getName(), mapConstraintToValue(paramVar.getValue(), parameter.getSchema().getType()));
@@ -88,7 +88,7 @@ public class Analyzer {
     private boolean isValidRequest(Map<String, String> request, boolean partial) throws IDLException {
         List<Constraint> cons = new ArrayList<>();
         for (Parameter parameter : mapper.getParameters()) {
-            BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName() + "Set")).asBoolVar();
+            BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
             if (request.containsKey(parameter.getName())) {
                 IntVar paramVar = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName())).asIntVar();
                 Constraint con = mapper.getChocoModel().and(mapper.getChocoModel().arithm(varSet, "=", 1),

@@ -82,7 +82,7 @@ public class Mapper {
         for (Parameter parameter : parameters) {
             String paramType = parameter.getSchema().getType();
             List<?> paramEnum = parameter.getSchema().getEnum();
-            BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName() + "Set"), BoolVar.class, false).asBoolVar();
+            BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName()) + "Set", BoolVar.class, false).asBoolVar();
 
             if (paramType.equals(ParameterType.BOOLEAN.toString())) {
                 this.getVariable(Utils.parseIDLParamName(parameter.getName()), BoolVar.class, false);

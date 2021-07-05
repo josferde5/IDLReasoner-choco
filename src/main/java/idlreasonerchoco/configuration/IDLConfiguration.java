@@ -42,7 +42,9 @@ public class IDLConfiguration {
 	        } catch (Exception e) {
 	            ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_SPECIFICATION.toString(), e);
 	        }
-		}
+		} else {
+		    this.apiSpecification = apiSpecification;
+        }
 	}
 
     public void chargeProperties(String properties) {
