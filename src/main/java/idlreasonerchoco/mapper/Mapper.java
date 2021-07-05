@@ -8,10 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.HashBiMap;
-import io.swagger.parser.OpenAPIParser;
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
@@ -19,6 +18,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 
+import com.google.common.collect.HashBiMap;
 import com.google.inject.Injector;
 
 import es.us.isa.idl.IDLStandaloneSetupGenerated;
@@ -31,6 +31,7 @@ import idlreasonerchoco.model.OperationType;
 import idlreasonerchoco.model.ParameterType;
 import idlreasonerchoco.utils.ExceptionManager;
 import idlreasonerchoco.utils.Utils;
+import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -178,6 +179,10 @@ public class Mapper {
             Response response = idlGenerator.doGenerateChocoModel(resource);
             this.stringToIntMap = HashBiMap.create(response.getStringToIntMap());
             this.chocoModel = response.getChocoModel();
+            this.chocoModel.getSolver().setRestartOnSolutions();
+            this.chocoModel.getSolver().setSearch(
+					Search.randomSearch(variablesMap.values().stream().map(x -> x.asIntVar()).toArray(IntVar[]::new), 
+					System.currentTimeMillis() * (long)(Math.random()*11)));
         } catch (Exception e) {
             ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
         }
