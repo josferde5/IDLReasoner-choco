@@ -6,10 +6,11 @@ public enum Paths {
     
 	private String name;
 	
-	private Paths(String name) {
+	Paths(String name) {
 		this.name = name;
 	}
-	
+
+	@Override
 	public String toString() {
 		return this.name;
 	}

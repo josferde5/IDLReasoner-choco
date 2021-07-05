@@ -8,11 +8,12 @@ public enum PropertiesType {
 	private String name;
 	private String defaultValue;
 	
-	private PropertiesType(String name, String defaultValue) {
+	PropertiesType(String name, String defaultValue) {
 		this.name = name;
 		this.defaultValue = defaultValue;
 	}
-	
+
+	@Override
 	public String toString() {
 		return this.name;
 	}

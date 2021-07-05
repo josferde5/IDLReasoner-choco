@@ -11,10 +11,11 @@ public enum OperationType {
 	
 	private String type;
 	
-	private OperationType(String type) {
+	OperationType(String type) {
 		this.type = type;
 	}
-	
+
+	@Override
 	public String toString() {
 		return this.type;
 	}

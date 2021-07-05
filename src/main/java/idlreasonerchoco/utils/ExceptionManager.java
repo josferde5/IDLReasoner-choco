@@ -6,9 +6,13 @@ import idlreasonerchoco.configuration.model.IDLException;
 
 public class ExceptionManager {
 
+	private ExceptionManager() {
+
+	}
+
 	public static void rethrow(Logger logger, String error, Exception exception) throws IDLException {
-		log(logger, error.toString(), exception);
-		throw new IDLException(error.toString(), exception);
+		log(logger, error, exception);
+		throw new IDLException(error, exception);
 	}
 	
 	public static void rethrow(Logger logger, String error) throws IDLException {
@@ -16,7 +20,7 @@ public class ExceptionManager {
 	}
 	
 	public static void log(Logger logger, String error, Exception exception) {
-		logger.error(error.toString(), exception);
+		logger.error(error, exception);
 	}
 	
 	public static void log(Logger logger, String error) {

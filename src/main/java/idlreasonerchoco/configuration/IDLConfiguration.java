@@ -45,7 +45,7 @@ public class IDLConfiguration {
 		}
 	}
 
-    public void chargeProperties(String properties) throws IDLException {
+    public void chargeProperties(String properties) {
         try (InputStream input = new ByteArrayInputStream(properties.getBytes())) {
         	Properties props = new Properties();
             props.load(input);

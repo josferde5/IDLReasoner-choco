@@ -13,10 +13,11 @@ public enum ErrorType {
 	
 	private String msg;
 	
-	private ErrorType(String msg) {
+	ErrorType(String msg) {
 		this.msg = msg;
 	}
-	
+
+	@Override
 	public String toString() {
 		return this.msg;
 	}

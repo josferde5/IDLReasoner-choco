@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.HashBiMap;
+import io.swagger.parser.OpenAPIParser;
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.BoolVar;
@@ -34,117 +36,115 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class Mapper {
-	private static final Logger LOG = Logger.getLogger(Mapper.class);
-	
-	private static final String FORM_DATA = "formData";
-	private static final String OAS_SPECIFICATION_TYPE = "oas";
-	private static final String X_DEPENDENCIES = "x-dependencies";
-	private static final String NEW_LINE = "\n";
-	private static final String DUMMY_URI = "dummy:/dummy.idl";
-	private static final String APPLICATION_TYPE = "application/x-www-form-urlencoded";
-	private static final int MIN_INTEGER = -1000;
-	private static final int MAX_INTEGER = 1000;
-	private static final String EQUALS = "=";
+    private static final Logger LOG = Logger.getLogger(Mapper.class);
+
+    private static final String FORM_DATA = "formData";
+    private static final String OAS_SPECIFICATION_TYPE = "oas";
+    private static final String X_DEPENDENCIES = "x-dependencies";
+    private static final String NEW_LINE = "\n";
+    private static final String DUMMY_URI = "dummy:/dummy.idl";
+    private static final String APPLICATION_TYPE = "application/x-www-form-urlencoded";
+    private static final int MIN_INTEGER = -1000;
+    private static final int MAX_INTEGER = 1000;
+    private static final String EQUALS = "=";
 
 
-	private final IDLConfiguration configuration;
-	
-	private String idlFromOas;
-	private OpenAPI openApiSpecification;
-	private Operation operation;
-	private List<Parameter> parameters;
-	private Map<String, Integer> stringToIntMap;
-	private Model chocoModel;
-	private Map<String, Variable> variablesMap = new HashMap<>();
+    private final IDLConfiguration configuration;
 
-	public Mapper(IDLConfiguration configuration) throws IDLException {
-		this.configuration = configuration;
-		this.chocoModel = new Model(configuration.getOperationPath());
-		this.variablesMap = new HashMap<>();
-		this.stringToIntMap = new HashMap<>();
+    private String idlFromOas;
+    private OpenAPI openApiSpecification;
+    private Operation operation;
+    private List<Parameter> parameters;
+    private HashBiMap<String, Integer> stringToIntMap;
+    private Model chocoModel;
+    private Map<String, Variable> variablesMap;
 
-		if (!this.configuration.getSpecificationType().toLowerCase().equals(OAS_SPECIFICATION_TYPE)) {
-			ExceptionManager.rethrow(LOG, ErrorType.BAD_SPECIFICATION.toString());
-		}
-		
-		this.readOpenApiSpecification();
-		this.generateIDLFromOAS();	
-		this.mapVariables();
-		this.generateConstraintsFromIDL();
-	}
+    public Mapper(IDLConfiguration configuration) throws IDLException {
+        this.configuration = configuration;
+        this.chocoModel = new Model(configuration.getOperationPath());
+        this.variablesMap = new HashMap<>();
+        this.stringToIntMap = HashBiMap.create();
 
-	private void mapVariables() throws IDLException {
+        if (!this.configuration.getSpecificationType().toLowerCase().equals(OAS_SPECIFICATION_TYPE)) {
+            ExceptionManager.rethrow(LOG, ErrorType.BAD_SPECIFICATION.toString());
+        }
 
-	        for (Parameter parameter: parameters) {
-	            String paramType = parameter.getSchema().getType();
-	            List<?> paramEnum = parameter.getSchema().getEnum();
-	            BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName() + "Set"), BoolVar.class, false).asBoolVar();
+        this.readOpenApiSpecification();
+        this.generateIDLFromOAS();
+            this.mapVariables();
+        this.generateConstraintsFromIDL();
+    }
 
-	            if(paramType.equals(ParameterType.BOOLEAN.toString())) {
-	            	this.getVariable(Utils.parseIDLParamName(parameter.getName()), BoolVar.class, false);
-	            	
-	            } else if(paramEnum != null) {
-	            	
-	                if (paramType.equals(ParameterType.STRING.toString())) {
-                        int[] domain = paramEnum.stream().mapToInt(x->this.stringToInt(x.toString())).toArray();
-                        this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
-                        
-	                } else if (paramType.equals(ParameterType.INTEGER.toString())) {
-	                	int[] domain = paramEnum.stream().mapToInt(x->Integer.parseInt(x.toString())).toArray();
-                        this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
-                        
-	                } else {
-	                	throw new IDLException(ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
-	                }
-	                
-	            } else if(paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString())) {
-                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
-                    
-	            } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
-                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false);
-                    
-	            } else {
-	                throw new IDLException(ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
-	            }
+    private void mapVariables() throws IDLException {
+        for (Parameter parameter : parameters) {
+            String paramType = parameter.getSchema().getType();
+            List<?> paramEnum = parameter.getSchema().getEnum();
+            BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName() + "Set"), BoolVar.class, false).asBoolVar();
 
-	            if (Boolean.TRUE.equals(parameter.getRequired())) {
-	                this.chocoModel.arithm(varParamSet, EQUALS, 1).post();
-	            }
-	        }
-	}
+            if (paramType.equals(ParameterType.BOOLEAN.toString())) {
+                this.getVariable(Utils.parseIDLParamName(parameter.getName()), BoolVar.class, false);
 
-	private void readOpenApiSpecification() {
-		ParseOptions options = new ParseOptions();
-        options.setResolveFully(true);
-        this.openApiSpecification = new OpenAPIV3Parser().readContents(this.configuration.getApiSpecification()).getOpenAPI();
+            } else if (paramEnum != null) {
+
+                if (paramType.equals(ParameterType.STRING.toString())) {
+                    int[] domain = paramEnum.stream().mapToInt(x -> this.stringToInt(x.toString())).toArray();
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
+
+                } else if (paramType.equals(ParameterType.INTEGER.toString())) {
+                    int[] domain = paramEnum.stream().mapToInt(x -> Integer.parseInt(x.toString())).toArray();
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
+
+                } else {
+                    ExceptionManager.rethrow(LOG, ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
+                }
+
+            } else if (paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString())) {
+                this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
+
+            } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
+                this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false);
+
+            } else {
+                ExceptionManager.rethrow(LOG, ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
+            }
+
+            if (Boolean.TRUE.equals(parameter.getRequired())) {
+                this.chocoModel.arithm(varParamSet, EQUALS, 1).post();
+            }
+        }
+    }
+
+    private void readOpenApiSpecification() throws IDLException {
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolveFully(true);
+        parseOptions.setFlatten(true);
+        this.openApiSpecification = new OpenAPIParser().readContents(this.configuration.getApiSpecification(), null, parseOptions).getOpenAPI();
         this.operation = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
-        this.parameters = this.operation.getParameters(); 
+        this.parameters = this.operation.getParameters() != null? this.operation.getParameters() : new ArrayList<>();
         if (this.operation.getRequestBody() != null) {
-            if (this.parameters == null)
-                this.parameters = new ArrayList<>();
             this.parameters.addAll(getFormDataParameters(this.operation));
         }
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void generateIDLFromOAS() throws IDLException {
+    }
+
+    @SuppressWarnings("unchecked")
+    public void generateIDLFromOAS() {
         try {
-        	List<String> IDLdeps = (List<String>) operation.getExtensions().get(X_DEPENDENCIES);
-            
-            if (IDLdeps.size() != 0) {
-              	this.idlFromOas = String.join(NEW_LINE, IDLdeps);
+            List<String> IDLdeps = (List<String>) operation.getExtensions().get(X_DEPENDENCIES);
+            if (!IDLdeps.isEmpty()) {
+                this.idlFromOas = String.join(NEW_LINE, IDLdeps);
             }
+        } catch (NullPointerException e) {
+            this.idlFromOas = NEW_LINE;
         } catch (Exception e) {
-        	ExceptionManager.rethrow(LOG, ErrorType.ERROR_READING_DEPENDECIES.toString(), e);
+            ExceptionManager.log(LOG, ErrorType.ERROR_READING_DEPENDECIES.toString(), e);
         }
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Collection<Parameter> getFormDataParameters(Operation operation) {
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Collection<Parameter> getFormDataParameters(Operation operation) {
         List<Parameter> formDataParameters = new ArrayList<>();
         Schema formDataBody;
         Map<String, Schema> formDataBodyProperties;
@@ -156,7 +156,7 @@ public class Mapper {
             return formDataParameters;
         }
 
-        for (Map.Entry<String, Schema> property: formDataBodyProperties.entrySet()) {
+        for (Map.Entry<String, Schema> property : formDataBodyProperties.entrySet()) {
             Parameter parameter = new Parameter().name(property.getKey()).in(FORM_DATA).required(formDataBody.getRequired().contains(property.getKey()));
             parameter.setSchema(new Schema().type(property.getValue().getType()));
             parameter.getSchema().setEnum(property.getValue().getEnum());
@@ -166,102 +166,102 @@ public class Mapper {
         return formDataParameters;
     }
 
-	private void generateConstraintsFromIDL() throws IDLException {
-		IDLGenerator idlGenerator = new IDLGenerator(stringToIntMap, chocoModel);		
-		Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
-		XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
-		Resource resource = resourceSet.createResource(URI.createURI(DUMMY_URI));
-		InputStream in = new ByteArrayInputStream(this.idlFromOas.getBytes());
-		
-		try {
-			resource.load(in, resourceSet.getLoadOptions());
-			Response response = idlGenerator.doGenerateChocoModel(resource);
-			this.stringToIntMap = response.getStringToIntMap();
-			this.chocoModel = response.getChocoModel();
-		} catch (Exception e) {
-			ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
-		}
-	}
+    private void generateConstraintsFromIDL() throws IDLException {
+        IDLGenerator idlGenerator = new IDLGenerator(stringToIntMap, chocoModel);
+        Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
+        XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
+        Resource resource = resourceSet.createResource(URI.createURI(DUMMY_URI));
+        InputStream in = new ByteArrayInputStream(this.idlFromOas.getBytes());
 
-	private Operation getOasOperation(String operationPath, String operationType) {
-		PathItem item = this.openApiSpecification.getPaths().get(operationPath);
+        try {
+            resource.load(in, resourceSet.getLoadOptions());
+            Response response = idlGenerator.doGenerateChocoModel(resource);
+            this.stringToIntMap = HashBiMap.create(response.getStringToIntMap());
+            this.chocoModel = response.getChocoModel();
+        } catch (Exception e) {
+            ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
+        }
+    }
 
-		switch (OperationType.valueOf(operationType.toUpperCase())) {
-		case GET:
-			return item.getGet();
-		case DELETE:
-			return item.getDelete();
-		case HEAD:
-			return item.getHead();
-		case OPTIONS:
-			return item.getOptions();
-		case PATCH:
-			return item.getPatch();
-		case POST:
-			return item.getPost();
-		case PUT:
-			return item.getPut();
-		default:
-			ExceptionManager.log(LOG, ErrorType.BAD_OAS_OPERATION.toString());
-			return null;
-		}
-	}
+    private Operation getOasOperation(String operationPath, String operationType) throws IDLException {
+        PathItem item = this.openApiSpecification.getPaths().get(operationPath);
 
-	private Integer stringToInt(String stringValue) {
-		Integer intMapping = stringToIntMap.get(stringValue);
-		if (intMapping != null) {
-			return intMapping;
-		} else {
-			int size = stringToIntMap.entrySet().size();
-			stringToIntMap.put(stringValue, size);
-			return size;
-		}
-	}
-	
-	private Variable getVariable(String name, Class<? extends Variable> type, boolean absoluteDomain, int... domain) {
-		Variable paramVar = variablesMap.get(name);
-		if (paramVar != null) {
-			return paramVar;
-		} else {
-			if(type == BoolVar.class){
-				variablesMap.put(name, chocoModel.boolVar(name));
-			} else if (type == IntVar.class){
-				if(absoluteDomain) {
-					variablesMap.put(name, chocoModel.intVar(name, domain));
-				} else if(domain.length<=2) {
-					variablesMap.put(name, chocoModel.intVar(name, domain.length >= 1 ? domain[0] : MIN_INTEGER, domain.length==2 ? domain[1] : MAX_INTEGER));
-				}
-			}
-			return variablesMap.get(name);
-		}
-	}
-	
-	public Model getChocoModel() {
-		return chocoModel;
-	}
+        switch (OperationType.valueOf(operationType.toUpperCase())) {
+            case GET:
+                return item.getGet();
+            case DELETE:
+                return item.getDelete();
+            case HEAD:
+                return item.getHead();
+            case OPTIONS:
+                return item.getOptions();
+            case PATCH:
+                return item.getPatch();
+            case POST:
+                return item.getPost();
+            case PUT:
+                return item.getPut();
+            default:
+                ExceptionManager.rethrow(LOG, ErrorType.BAD_OAS_OPERATION.toString());
+                return null;
+        }
+    }
 
-	public Map<String, Integer> getStringToIntMap() {
-		return stringToIntMap;
-	}
+    public Integer stringToInt(String stringValue) {
+        Integer intMapping = stringToIntMap.get(stringValue);
+        if (intMapping != null) {
+            return intMapping;
+        } else {
+            int size = stringToIntMap.entrySet().size();
+            stringToIntMap.put(stringValue, size);
+            return size;
+        }
+    }
 
-	public String getIdlFromOas() {
-		return idlFromOas;
-	}
+    private Variable getVariable(String name, Class<? extends Variable> type, boolean absoluteDomain, int... domain) {
+        Variable paramVar = variablesMap.get(name);
+        if (paramVar != null) {
+            return paramVar;
+        } else {
+            if (type == BoolVar.class) {
+                variablesMap.put(name, chocoModel.boolVar(name));
+            } else if (type == IntVar.class) {
+                if (absoluteDomain) {
+                    variablesMap.put(name, chocoModel.intVar(name, domain));
+                } else if (domain.length <= 2) {
+                    variablesMap.put(name, chocoModel.intVar(name, domain.length >= 1 ? domain[0] : MIN_INTEGER, domain.length == 2 ? domain[1] : MAX_INTEGER));
+                }
+            }
+            return variablesMap.get(name);
+        }
+    }
 
-	public OpenAPI getOpenApiSpecification() {
-		return openApiSpecification;
-	}
+    public Model getChocoModel() {
+        return chocoModel;
+    }
 
-	public Operation getOperation() {
-		return operation;
-	}
-	
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
+    public HashBiMap<String, Integer> getStringToIntMap() {
+        return stringToIntMap;
+    }
 
-	public Map<String, Variable> getVariablesMap() {
-		return variablesMap;
-	}
-	
+    public String getIdlFromOas() {
+        return idlFromOas;
+    }
+
+    public OpenAPI getOpenApiSpecification() {
+        return openApiSpecification;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public Map<String, Variable> getVariablesMap() {
+        return variablesMap;
+    }
+
 }
