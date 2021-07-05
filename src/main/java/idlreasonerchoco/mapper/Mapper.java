@@ -52,7 +52,6 @@ public class Mapper {
     private static final int MAX_INTEGER = 1000;
     private static final String EQUALS = "=";
 
-
     private final IDLConfiguration configuration;
 
     private String idlFromOas;
@@ -183,6 +182,7 @@ public class Mapper {
             this.chocoModel.getSolver().setSearch(
 					Search.randomSearch(variablesMap.values().stream().map(x -> x.asIntVar()).toArray(IntVar[]::new), 
 					System.currentTimeMillis() * (long)(Math.random()*11)));
+            
         } catch (Exception e) {
             ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);
         }

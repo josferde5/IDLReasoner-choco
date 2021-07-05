@@ -27,11 +27,11 @@ public class Analyzer {
     private final IDLConfiguration configuration;
 
     public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
-        this(specificationType, apiSpecification, operationPath, operationType, true, null);
+        this(specificationType, apiSpecification, operationPath, operationType, true);
     }
 
-    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean chargeFromFile, String idlProperties) throws IDLException {
-        this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, chargeFromFile, idlProperties);
+    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean chargeFromFile) throws IDLException {
+        this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, chargeFromFile);
         this.mapper = new Mapper(configuration);
     }
 
