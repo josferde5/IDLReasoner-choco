@@ -18,7 +18,7 @@ class AnalyzerTests {
             "oneDependencyAllOrNone", "oneDependencyZeroOrNone", "oneDependencyArithRel", "oneDependencyComplex"})
     void randomValidRequestTest(String operation) throws IDLException {
         Analyzer analyzer = new Analyzer("oas", "./src/test/resources/OAS_test_suite.yaml", "/" + operation, "get");
-        Map<String, String> validRequest = analyzer.getRandomRequest();
+        Map<String, String> validRequest = analyzer.getRandomValidRequest();
         assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
         System.out.println("Test passed: " + operation);
     }
@@ -26,19 +26,19 @@ class AnalyzerTests {
     @Test
     void youtubeValidRequest() throws IDLException {
     	Analyzer analyzer = new Analyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
-    	Map<String, String> validRequest = analyzer.getRandomRequest();
+    	Map<String, String> validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
-    	validRequest = analyzer.getRandomRequest();
+    	validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
-    	validRequest = analyzer.getRandomRequest();
+    	validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
-    	validRequest = analyzer.getRandomRequest();
+    	validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
-    	validRequest = analyzer.getRandomRequest();
+    	validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
     	System.out.println("Test passed: youtube_search_valid_request");
@@ -47,19 +47,19 @@ class AnalyzerTests {
     @Test
     void youtubeInvalidRequest() throws IDLException {
         Analyzer analyzer = new Analyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
-        Map<String, String> validRequest = analyzer.getInvalidRandomRequest();
+        Map<String, String> validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 
-        validRequest = analyzer.getInvalidRandomRequest();
+        validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 
-        validRequest = analyzer.getInvalidRandomRequest();
+        validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 
-        validRequest = analyzer.getInvalidRandomRequest();
+        validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 
-        validRequest = analyzer.getInvalidRandomRequest();
+        validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 
         System.out.println("Test passed: youtube_search_invalid_request");

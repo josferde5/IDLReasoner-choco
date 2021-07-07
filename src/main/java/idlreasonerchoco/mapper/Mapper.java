@@ -105,7 +105,7 @@ public class Mapper {
                 this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
 
             } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
-                this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false);
+                this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, getMinimumValue(parameter), getMaximumValue(parameter));
 
             } else {
                 ExceptionManager.rethrow(LOG, ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
@@ -115,6 +115,16 @@ public class Mapper {
                 this.chocoModel.arithm(varParamSet, EQUALS, 1).post();
             }
         }
+    }
+
+    private int getMaximumValue(Parameter parameter) {
+        int maximum = parameter.getSchema().getMaximum() != null? parameter.getSchema().getMaximum().intValue() : 1000;
+        return parameter.getSchema().getExclusiveMaximum() != null && parameter.getSchema().getExclusiveMaximum()? maximum - 1 : maximum;
+    }
+
+    private int getMinimumValue(Parameter parameter) {
+        int minimum = parameter.getSchema().getMinimum() != null? parameter.getSchema().getMinimum().intValue() : -1000;
+        return parameter.getSchema().getExclusiveMinimum() != null && parameter.getSchema().getExclusiveMinimum()? minimum + 1 : minimum;
     }
 
     private void readOpenApiSpecification() throws IDLException {
@@ -190,25 +200,34 @@ public class Mapper {
 
     private Operation getOasOperation(String operationPath, String operationType) throws IDLException {
         PathItem item = this.openApiSpecification.getPaths().get(operationPath);
-
-        switch (OperationType.valueOf(operationType.toUpperCase())) {
-            case GET:
-                return item.getGet();
-            case DELETE:
-                return item.getDelete();
-            case HEAD:
-                return item.getHead();
-            case OPTIONS:
-                return item.getOptions();
-            case PATCH:
-                return item.getPatch();
-            case POST:
-                return item.getPost();
-            case PUT:
-                return item.getPut();
-            default:
+        if (item != null) {
+            try {
+                switch (OperationType.valueOf(operationType.toUpperCase())) {
+                    case GET:
+                        return item.getGet();
+                    case DELETE:
+                        return item.getDelete();
+                    case HEAD:
+                        return item.getHead();
+                    case OPTIONS:
+                        return item.getOptions();
+                    case PATCH:
+                        return item.getPatch();
+                    case POST:
+                        return item.getPost();
+                    case PUT:
+                        return item.getPut();
+                    default:
+                        ExceptionManager.rethrow(LOG, ErrorType.BAD_OAS_OPERATION.toString());
+                        return null;
+                }
+            } catch (IllegalArgumentException e) {
                 ExceptionManager.rethrow(LOG, ErrorType.BAD_OAS_OPERATION.toString());
                 return null;
+            }
+        } else {
+            ExceptionManager.rethrow(LOG, ErrorType.ERROR_OPERATION_PATH.toString());
+            return null;
         }
     }
 
