@@ -51,8 +51,8 @@
         
         <dependency>
             <groupId>es.us.isa</groupId>
-            <artifactId>idl</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <artifactId>idl-choco</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
