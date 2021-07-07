@@ -4,20 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import idlreasonerchoco.configuration.model.ErrorType;
-import idlreasonerchoco.model.ParameterType;
-import idlreasonerchoco.utils.ExceptionManager;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 
 import idlreasonerchoco.configuration.IDLConfiguration;
+import idlreasonerchoco.configuration.model.ErrorType;
 import idlreasonerchoco.configuration.model.IDLException;
 import idlreasonerchoco.mapper.Mapper;
+import idlreasonerchoco.model.ParameterType;
+import idlreasonerchoco.utils.ExceptionManager;
 import idlreasonerchoco.utils.Utils;
-import org.chocosolver.solver.variables.IntVar;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
 public class Analyzer {
 
@@ -63,9 +64,31 @@ public class Analyzer {
     }
 
     public Map<String, String> getRandomRequest() throws IDLException {
-        Map<String, String> request = null;
-        if (mapper.getChocoModel().getSolver().solve()) {
-            request = new HashMap<>();
+        mapper.getChocoModel().getSolver().reset();
+        return mapRequest();
+    }
+    
+    public Map<String, String> getInvalidRandomRequest() throws IDLException {
+    	mapper.getChocoModel().getSolver().reset();
+    	Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
+    		mapper.getChocoModel().unpost(x);
+    		x.getOpposite().post();
+    	});
+    	
+    	Map<String, String> request = mapRequest();
+    	
+    	Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
+    		mapper.getChocoModel().unpost(x);
+    		x.getOpposite().post();
+    	});
+    	
+    	return request;
+    }
+    
+	private Map<String, String> mapRequest() throws IDLException {
+		Map<String, String> request = null;
+		if (isConsistent()) {
+			request = new HashMap<>();
             for (Parameter parameter : mapper.getParameters()) {
                 BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
                 if (varSet.getValue() == 1) {
@@ -74,8 +97,8 @@ public class Analyzer {
                 }
             }
         }
-        return request;
-    }
+		return request;
+	}
 
     public boolean isValidRequest(Map<String, String> request) throws IDLException {
         return isValidRequest(request, false);
