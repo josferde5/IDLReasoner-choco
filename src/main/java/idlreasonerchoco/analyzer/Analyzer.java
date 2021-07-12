@@ -14,11 +14,11 @@ public class Analyzer {
     private final IDLConfiguration configuration;
 
     public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
-        this(specificationType, apiSpecification, operationPath, operationType, true);
+        this(specificationType, apiSpecification, operationPath, operationType, false);
     }
 
-    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean chargeFromFile) throws IDLException {
-        this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, chargeFromFile);
+    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean specAsString) throws IDLException {
+        this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, specAsString);
         this.mapper = new Mapper(configuration);
     }
 

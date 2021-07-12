@@ -131,7 +131,11 @@ public class Mapper {
         ParseOptions parseOptions = new ParseOptions();
         parseOptions.setResolveFully(true);
         parseOptions.setFlatten(true);
-        this.openApiSpecification = new OpenAPIParser().readContents(this.configuration.getApiSpecification(), null, parseOptions).getOpenAPI();
+        if (this.configuration.isSpecAsString()) {
+            this.openApiSpecification = new OpenAPIParser().readContents(this.configuration.getApiSpecification(), null, parseOptions).getOpenAPI();
+        } else {
+            this.openApiSpecification = new OpenAPIParser().readLocation(this.configuration.getApiSpecification(), null, parseOptions).getOpenAPI();
+        }
         this.operation = getOasOperation(this.configuration.getOperationPath(), this.configuration.getOperationType());
         this.parameters = this.operation.getParameters() != null? this.operation.getParameters() : new ArrayList<>();
         if (this.operation.getRequestBody() != null) {
