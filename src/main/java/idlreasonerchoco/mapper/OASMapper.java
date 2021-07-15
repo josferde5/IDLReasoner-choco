@@ -76,11 +76,7 @@ public class OASMapper extends Mapper {
             BoolVar varParamSet = this.getVariable(Utils.parseIDLParamName(parameter.getName()) + "Set", BoolVar.class, false).asBoolVar();
 
             if (paramType.equals(ParameterType.BOOLEAN.toString())) {
-            	if (data != null) {
-            		
-            	}
                 this.getVariable(Utils.parseIDLParamName(parameter.getName()), BoolVar.class, false);
-
             } else if (paramEnum != null) {
 
                 if (paramType.equals(ParameterType.STRING.toString())) {
@@ -96,8 +92,14 @@ public class OASMapper extends Mapper {
                 }
 
             } else if (paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString())) {
-                this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
-
+            	
+            	if(data != null && data.get(parameter.getName()) != null && data.get(parameter.getName()).isEmpty()) {
+            		int[] domain = data.get(parameter.getName()).stream().mapToInt(x -> this.stringToInt(x.toString())).toArray();
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
+            	} else {
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
+            	}
+            	
             } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
                 this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, getMinimumValue(parameter), getMaximumValue(parameter));
 
@@ -112,12 +114,12 @@ public class OASMapper extends Mapper {
     }
 
     private int getMaximumValue(Parameter parameter) {
-        int maximum = parameter.getSchema().getMaximum() != null ? parameter.getSchema().getMaximum().intValue() : 1000;
+        int maximum = parameter.getSchema().getMaximum() != null ? parameter.getSchema().getMaximum().intValue() : MAX_INTEGER;
         return parameter.getSchema().getExclusiveMaximum() != null && parameter.getSchema().getExclusiveMaximum()? maximum - 1 : maximum;
     }
 
     private int getMinimumValue(Parameter parameter) {
-        int minimum = parameter.getSchema().getMinimum() != null ? parameter.getSchema().getMinimum().intValue() : -1000;
+        int minimum = parameter.getSchema().getMinimum() != null ? parameter.getSchema().getMinimum().intValue() : MIN_INTEGER;
         return parameter.getSchema().getExclusiveMinimum() != null && parameter.getSchema().getExclusiveMinimum()? minimum + 1 : minimum;
     }
 
