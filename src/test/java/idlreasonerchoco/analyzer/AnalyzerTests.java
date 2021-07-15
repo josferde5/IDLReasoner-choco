@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import idlreasonerchoco.configuration.model.IDLException;
+import idlreasonerchoco.configuration.IDLException;
 
 class AnalyzerTests {
 
@@ -17,7 +17,7 @@ class AnalyzerTests {
     @ValueSource(strings = {"noParams", "oneParamBoolean", "oneDependencyRequires", "oneDependencyOr", "oneDependencyOnlyOne",
             "oneDependencyAllOrNone", "oneDependencyZeroOrNone", "oneDependencyArithRel", "oneDependencyComplex"})
     void randomValidRequestTest(String operation) throws IDLException {
-        Analyzer analyzer = new Analyzer("oas", "./src/test/resources/OAS_test_suite.yaml", "/" + operation, "get");
+        Analyzer analyzer = new OASAnalyzer("oas", "./src/test/resources/OAS_test_suite.yaml", "/" + operation, "get");
         Map<String, String> validRequest = analyzer.getRandomValidRequest();
         assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
         System.out.println("Test passed: " + operation);
@@ -25,7 +25,7 @@ class AnalyzerTests {
 
     @Test
     void youtubeValidRequest() throws IDLException {
-    	Analyzer analyzer = new Analyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
+    	Analyzer analyzer = new OASAnalyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
     	Map<String, String> validRequest = analyzer.getRandomValidRequest();
     	assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
     	
@@ -46,7 +46,7 @@ class AnalyzerTests {
     
     @Test
     void youtubeInvalidRequest() throws IDLException {
-        Analyzer analyzer = new Analyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
+        Analyzer analyzer = new OASAnalyzer("oas", "./src/test/resources/youtube_search.yaml", "/search", "get");
         Map<String, String> validRequest = analyzer.getRandomInvalidRequest();
         assertFalse(analyzer.isValidRequest(validRequest), "The request should be INVALID");
 

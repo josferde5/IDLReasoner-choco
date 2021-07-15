@@ -1,38 +1,38 @@
-package idlreasonerchoco.analyzer.operations;
-
-import idlreasonerchoco.configuration.model.ErrorType;
-import idlreasonerchoco.configuration.model.IDLException;
-import idlreasonerchoco.mapper.Mapper;
-import idlreasonerchoco.model.ParameterType;
-import idlreasonerchoco.utils.ExceptionManager;
-import idlreasonerchoco.utils.Utils;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import org.apache.log4j.Logger;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
+package idlreasonerchoco.analyzer.operations.oas;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class RandomRequest implements RequestGenerationOperation {
+import org.apache.log4j.Logger;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 
-    private static final Logger LOG = Logger.getLogger(RandomRequest.class);
+import idlreasonerchoco.configuration.ErrorType;
+import idlreasonerchoco.configuration.IDLException;
+import idlreasonerchoco.mapper.OASMapper;
+import idlreasonerchoco.model.ParameterType;
+import idlreasonerchoco.utils.ExceptionManager;
+import idlreasonerchoco.utils.Utils;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
-    private final Mapper mapper;
+public class OASRandomRequest implements RequestGenerationOperation {
+
+    private static final Logger LOG = Logger.getLogger(OASRandomRequest.class);
+
+    private final OASMapper mapper;
     private final boolean valid;
 
-    public RandomRequest(Mapper mapper, boolean valid) {
+    public OASRandomRequest(OASMapper mapper, boolean valid) {
         this.mapper = mapper;
         this.valid = valid;
     }
 
     public Map<String, String> generate() throws IDLException {
+        mapper.getChocoModel().getSolver().reset();
         if (valid) {
-            mapper.getChocoModel().getSolver().reset();
             return mapRequest();
         } else {
-            mapper.getChocoModel().getSolver().reset();
             Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
                 mapper.getChocoModel().unpost(x);
                 x.getOpposite().post();
@@ -51,7 +51,7 @@ public class RandomRequest implements RequestGenerationOperation {
 
     private Map<String, String> mapRequest() throws IDLException {
         Map<String, String> request = null;
-        Consistent consistent = new Consistent(mapper);
+        OASConsistent consistent = new OASConsistent(mapper);
         if (consistent.analyze()) {
             request = new HashMap<>();
             for (Parameter parameter : mapper.getParameters()) {

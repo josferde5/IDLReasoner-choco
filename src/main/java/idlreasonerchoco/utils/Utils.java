@@ -5,7 +5,6 @@ import es.us.isa.idl.generator.ReservedWords;
 public class Utils {
 
 	private Utils() {
-
 	}
 
 	public static String parseIDLParamName(String paramName) {

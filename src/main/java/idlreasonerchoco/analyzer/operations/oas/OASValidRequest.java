@@ -1,30 +1,31 @@
-package idlreasonerchoco.analyzer.operations;
-
-import idlreasonerchoco.configuration.model.ErrorType;
-import idlreasonerchoco.configuration.model.IDLException;
-import idlreasonerchoco.mapper.Mapper;
-import idlreasonerchoco.model.ParameterType;
-import idlreasonerchoco.utils.ExceptionManager;
-import idlreasonerchoco.utils.Utils;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import org.apache.log4j.Logger;
-import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
+package idlreasonerchoco.analyzer.operations.oas;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ValidRequest implements AnalysisOperation {
+import org.apache.log4j.Logger;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
 
-    private static final Logger LOG = Logger.getLogger(ValidRequest.class);
+import idlreasonerchoco.configuration.ErrorType;
+import idlreasonerchoco.configuration.IDLException;
+import idlreasonerchoco.mapper.OASMapper;
+import idlreasonerchoco.model.ParameterType;
+import idlreasonerchoco.utils.ExceptionManager;
+import idlreasonerchoco.utils.Utils;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
-    private final Mapper mapper;
+public class OASValidRequest implements AnalysisOperation {
+
+    private static final Logger LOG = Logger.getLogger(OASValidRequest.class);
+
+    private final OASMapper mapper;
     private final Map<String, String> request;
     private final boolean partial;
 
-    public ValidRequest(Mapper mapper, Map<String, String> request, boolean partial) {
+    public OASValidRequest(OASMapper mapper, Map<String, String> request, boolean partial) {
         this.mapper = mapper;
         this.request = request;
         this.partial = partial;

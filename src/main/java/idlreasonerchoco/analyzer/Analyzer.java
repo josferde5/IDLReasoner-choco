@@ -1,17 +1,14 @@
 package idlreasonerchoco.analyzer;
 
+import java.util.List;
 import java.util.Map;
 
-import idlreasonerchoco.analyzer.operations.*;
-
 import idlreasonerchoco.configuration.IDLConfiguration;
-import idlreasonerchoco.configuration.model.IDLException;
-import idlreasonerchoco.mapper.Mapper;
+import idlreasonerchoco.configuration.IDLException;
 
-public class Analyzer {
+public abstract class Analyzer {
 
-    private final Mapper mapper;
-    private final IDLConfiguration configuration;
+    protected final IDLConfiguration configuration;
 
     public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
         this(specificationType, apiSpecification, operationPath, operationType, false);
@@ -19,47 +16,24 @@ public class Analyzer {
 
     public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean specAsString) throws IDLException {
         this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, specAsString);
-        this.mapper = new Mapper(configuration);
     }
 
-    public boolean isConsistent() {
-        Consistent consistent = new Consistent(mapper);
-        return consistent.analyze();
-    }
+    public abstract boolean isConsistent() throws IDLException;
 
-    public boolean isDeadParameter(String paramName) throws IDLException {
-        DeadParameter deadParameter = new DeadParameter(mapper, paramName);
-        return deadParameter.analyze();
-    }
+    public abstract boolean isDeadParameter(String paramName) throws IDLException;
 
-    public boolean isFalseOptional(String paramName) throws IDLException {
-        FalseOptional falseOptional = new FalseOptional(mapper, paramName);
-        return falseOptional.analyze();
-    }
+    public abstract boolean isFalseOptional(String paramName) throws IDLException;
 
-    public Boolean isValidIDL() throws IDLException {
-        ValidIDL validIDL = new ValidIDL(mapper);
-        return validIDL.analyze();
-    }
+    public abstract Boolean isValidIDL() throws IDLException;
+    
+    public abstract Map<String, String> getRandomValidRequest() throws IDLException;
 
-    public Map<String, String> getRandomValidRequest() throws IDLException {
-        RandomRequest randomValidRequest = new RandomRequest(mapper, true);
-        return randomValidRequest.generate();
-    }
+    public abstract Map<String, String> getRandomInvalidRequest() throws IDLException;
 
-    public Map<String, String> getRandomInvalidRequest() throws IDLException {
-        RandomRequest randomInvalidRequest = new RandomRequest(mapper, false);
-        return randomInvalidRequest.generate();
-    }
+    public abstract boolean isValidRequest(Map<String, String> request) throws IDLException;
 
-    public boolean isValidRequest(Map<String, String> request) throws IDLException {
-        ValidRequest validRequest = new ValidRequest(mapper, request, false);
-        return validRequest.analyze();
-    }
-
-    public boolean isValidPartialRequest(Map<String, String> request) throws IDLException {
-        ValidRequest validPartialRequest = new ValidRequest(mapper, request, true);
-        return validPartialRequest.analyze();
-    }
+    public abstract boolean isValidPartialRequest(Map<String, String> request) throws IDLException;
+    
+    public abstract void updateData(Map<String, List<String>> data) throws IDLException;
 
 }

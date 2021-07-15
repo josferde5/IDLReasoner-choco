@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration.model;
+package idlreasonerchoco.configuration;
 
 public enum ErrorType {
 	ERROR_READING_PROPERTIES("Error reading the properties, using default values"),
