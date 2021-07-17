@@ -24,9 +24,10 @@ public class OASDeadParameter implements AnalysisOperation {
 
     public boolean analyze() throws IDLException {
         if (mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set") != null) {
-            BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set").asBoolVar();
+        	BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set").asBoolVar();
             Constraint cons = mapper.getChocoModel().arithm(varSet, "=", 1);
             cons.post();
+            mapper.getChocoModel().getSolver().reset();
             boolean result = !mapper.getChocoModel().getSolver().solve();
             mapper.getChocoModel().unpost(cons);
             return result;

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.chocosolver.solver.Cause;
+import org.chocosolver.solver.ICause;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -38,7 +41,9 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.parser.core.models.ParseOptions;
 
 public class OASMapper extends Mapper {
-    private static final Logger LOG = Logger.getLogger(OASMapper.class);
+    private static final String BODY_EXTENSION = "_body";
+
+	private static final Logger LOG = Logger.getLogger(OASMapper.class);
 
     private static final String FORM_DATA = "formData";
     private static final String OAS_SPECIFICATION_TYPE = "oas";
@@ -67,6 +72,7 @@ public class OASMapper extends Mapper {
         this.generateIDLFromOAS();
         this.mapVariables(data);
         this.generateConstraintsFromIDL();
+        this.updateStringBounds(data);
     }
 
     protected void mapVariables(Map<String, List<String>> data) throws IDLException {
@@ -93,11 +99,11 @@ public class OASMapper extends Mapper {
 
             } else if (paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString())) {
             	
-            	if(data != null && data.get(parameter.getName()) != null && data.get(parameter.getName()).isEmpty()) {
+            	if(data != null && data.get(parameter.getName()) != null && !data.get(parameter.getName()).isEmpty()) {
             		int[] domain = data.get(parameter.getName()).stream().mapToInt(x -> this.stringToInt(x.toString())).toArray();
                     this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, true, domain);
             	} else {
-                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, stringToIntMap.entrySet().size());
+                    this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false, 0, MAX_INTEGER);
             	}
             	
             } else if (paramType.equals(ParameterType.INTEGER.toString()) || paramType.equals(ParameterType.NUMBER.toString())) {
@@ -112,6 +118,24 @@ public class OASMapper extends Mapper {
             }
         }
     }
+    
+	private void updateStringBounds(Map<String, List<String>> data) throws IDLException {
+		for (Parameter parameter : parameters) {
+			String paramType = parameter.getSchema().getType();
+
+			if ((paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString()))
+					&& !(data != null && data.get(parameter.getName()) != null
+							&& data.get(parameter.getName()).isEmpty())) {
+				try {
+					this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false).asIntVar()
+							.updateUpperBound(stringToIntMap.size(), Cause.Null);
+				} catch (ContradictionException e) {
+					 ExceptionManager.rethrow(LOG, ErrorType.ERROR_UPDATING_BOUNDS.toString() + " :" + paramType);
+				}
+			}
+
+		}
+	}
 
     private int getMaximumValue(Parameter parameter) {
         int maximum = parameter.getSchema().getMaximum() != null ? parameter.getSchema().getMaximum().intValue() : MAX_INTEGER;
@@ -164,6 +188,12 @@ public class OASMapper extends Mapper {
             formDataBodyProperties = formDataBody.getProperties();
         } catch (NullPointerException e) {
             return formDataParameters;
+        }
+        
+        if(formDataBodyProperties == null) {
+        	String body = this.configuration.getOperationPath().replace("/", "_").substring(1) + BODY_EXTENSION;
+        	formDataBody = this.openApiSpecification.getComponents().getSchemas().get(body);
+        	formDataBodyProperties = formDataBody.getProperties();
         }
 
         for (Map.Entry<String, Schema> property : formDataBodyProperties.entrySet()) {

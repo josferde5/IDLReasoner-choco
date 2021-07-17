@@ -10,6 +10,7 @@ public class OASConsistent implements AnalysisOperation {
         this.mapper = mapper;
     }
     public boolean analyze() {
+    	mapper.getChocoModel().getSolver().reset();
         return mapper.getChocoModel().getSolver().solve();
     }
 }
