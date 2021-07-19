@@ -72,9 +72,10 @@ public class OASMapper extends Mapper {
         this.generateIDLFromOAS();
         this.mapVariables(data);
         this.generateConstraintsFromIDL();
-        this.updateStringBounds(data);
+//        this.updateStringBounds(data);
     }
 
+    @Override
     protected void mapVariables(Map<String, List<String>> data) throws IDLException {
         for (Parameter parameter : parameters) {
             String paramType = parameter.getSchema().getType();
@@ -119,13 +120,13 @@ public class OASMapper extends Mapper {
         }
     }
     
-	private void updateStringBounds(Map<String, List<String>> data) throws IDLException {
+	public void updateStringBounds(Map<String, List<String>> data) throws IDLException {
 		for (Parameter parameter : parameters) {
 			String paramType = parameter.getSchema().getType();
 
 			if ((paramType.equals(ParameterType.STRING.toString()) || paramType.equals(ParameterType.ARRAY.toString()))
 					&& !(data != null && data.get(parameter.getName()) != null
-							&& data.get(parameter.getName()).isEmpty())) {
+							&& !data.get(parameter.getName()).isEmpty())) {
 				try {
 					this.getVariable(Utils.parseIDLParamName(parameter.getName()), IntVar.class, false).asIntVar()
 							.updateUpperBound(stringToIntMap.size(), Cause.Null);
@@ -260,6 +261,7 @@ public class OASMapper extends Mapper {
             return null;
         }
     }
+
 
     public Integer stringToInt(String stringValue) {
         Integer intMapping = stringToIntMap.get(stringValue);

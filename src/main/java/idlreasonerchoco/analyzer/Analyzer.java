@@ -10,11 +10,11 @@ public abstract class Analyzer {
 
     protected final IDLConfiguration configuration;
 
-    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
+    protected Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType) throws IDLException {
         this(specificationType, apiSpecification, operationPath, operationType, false);
     }
 
-    public Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean specAsString) throws IDLException {
+    protected Analyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean specAsString) throws IDLException {
         this.configuration = new IDLConfiguration(specificationType, apiSpecification, operationPath, operationType, specAsString);
     }
 

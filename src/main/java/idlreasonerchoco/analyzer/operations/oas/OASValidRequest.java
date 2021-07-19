@@ -51,7 +51,6 @@ public class OASValidRequest implements AnalysisOperation {
                 }
 
             }
-
             boolean result = mapper.getChocoModel().getSolver().solve();
             cons.forEach(x -> mapper.getChocoModel().unpost(x));
             return result;

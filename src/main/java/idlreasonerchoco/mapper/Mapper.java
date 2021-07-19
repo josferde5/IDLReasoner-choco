@@ -19,11 +19,12 @@ public abstract class Mapper {
     protected Map<String, Variable> variablesMap;
     protected Model chocoModel;
 
-    public Mapper(IDLConfiguration configuration) throws IDLException {
+    protected Mapper(IDLConfiguration configuration) throws IDLException {
         this.configuration = configuration;
         this.chocoModel = new Model(configuration.getOperationPath());
         this.variablesMap = new HashMap<>();
         this.stringToIntMap = HashBiMap.create();
+        this.stringToIntMap.put("default", 0);
     }
 
     protected abstract void mapVariables(Map<String, List<String>> data) throws IDLException;
