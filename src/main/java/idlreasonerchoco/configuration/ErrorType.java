@@ -13,7 +13,9 @@ public enum ErrorType {
 	ERROR_OPERATION_PARAM("The parameter does not exist in the specification"),
 	ERROR_UNKNOWN_PARAM_IN_REQUEST("The request contains unknown parameters"),
 	ERROR_UPDATING_BOUNDS("Error updating string variable bounds"),
-	ERROR_IN_PARAMETER_TYPE("The parameter type is not allowed for IDLReasoner to work");
+	ERROR_IN_PARAMETER_TYPE("The parameter type is not allowed for IDLReasoner to work"),
+	ERROR_VALIDATING_REQUEST("Error validating the request"),
+	ERROR_MAPPING_TO_CONSTRAINT("Error mapping request values to constraint values");
 	
 	private String msg;
 	

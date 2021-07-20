@@ -24,7 +24,7 @@ public class OASAnalyzer extends Analyzer {
 
     public OASAnalyzer(String specificationType, String apiSpecification, String operationPath, String operationType, boolean specAsString) throws IDLException {
         super(specificationType, apiSpecification, operationPath, operationType, specAsString);
-        this.mapper = new OASMapper(configuration, null);
+        this.mapper = new OASMapper(configuration);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class OASAnalyzer extends Analyzer {
     }
 
     public void updateData(Map<String, List<String>> data) throws IDLException {
-    	this.mapper = new OASMapper(configuration, data);
+    	this.mapper.updateData(data);
     }
 
 }

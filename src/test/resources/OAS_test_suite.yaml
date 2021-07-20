@@ -235,7 +235,7 @@ paths:
       responses:
         default:
           description: "Default"
-  /oneDependencyZeroOrNone:
+  /oneDependencyZeroOrOne:
     get:
       parameters:
         - name: "p1"
@@ -693,6 +693,12 @@ paths:
       responses:
         default:
           description: "Default"
+      x-dependencies:
+        - ZeroOrOne(p7 AND p8, p7 AND p8 OR p9=='value5');
+        - AllOrNone(p4 AND p5, p6 AND p7);
+        - NOT ZeroOrOne(p5==1000, p4==10000 OR p3==100000, p2==1000000);
+        - IF p1 AND Or(p2, p3) THEN p1+p2+p4<=999 AND OnlyOne(p6, AllOrNone(p7, p8));
+        - IF NOT (p4==p5 AND ZeroOrOne(p6, p7)) THEN Or(p6=='value1', p7 AND p8=='value3') OR OnlyOne(p1, p3);
   /combinatorial5:
     get:
       parameters:
@@ -819,6 +825,17 @@ paths:
       responses:
         default:
           description: "Default"
+      x-dependencies:
+        - IF p1=='value1' THEN p2=='value2';
+        - IF p3<1 THEN p4>5;
+        - IF NOT (p2<=3 OR p3<=4 OR p2=='value5') AND NOT p1=='value3' THEN p3<=2;
+        - IF p5<=4 THEN NOT p3<4;
+        - AllOrNone(p3==3, p3==3);
+        - AllOrNone(p3 OR p4 OR p4, p1, p2);
+        - AllOrNone(p1=='invalid value', p2=='another invalid value', p5==10);
+        - OnlyOne(p5==1, p5==1);
+        - OnlyOne(p1, p2, p3, p4, p5);
+        - OnlyOne(p1=='value2' AND p5>-1, p3>3);
   /combinatorial7:
     get:
       parameters:
@@ -869,6 +886,12 @@ paths:
       responses:
         default:
           description: "Default"
+      x-dependencies:
+        - p1==p2;
+        - p5>p4;
+        - p4>p3;
+        - p3>p5;
+        - p3+p4+p5<=15;
   /combinatorial8:
     get:
       parameters:
@@ -996,6 +1019,12 @@ paths:
       responses:
         default:
           description: "Default"
+      x-dependencies:
+        - IF p1 THEN p3==10 OR p5;
+        - p3 > p1;
+        - p2 <= p1;
+        - OnlyOne(p5, p7 OR p9);
+        - IF p2 THEN p7;
   /combinatorial10:
     get:
       parameters:
@@ -1046,6 +1075,17 @@ paths:
       responses:
         default:
           description: "Default"
+      x-dependencies:
+        - Or(p1==true, p2=='value1');
+        - Or(p2=='value2', p4>=4);
+        - OnlyOne(p2=='value3', p3=='value4');
+        - OnlyOne(p4<=3, p5>=3);
+        - ZeroOrOne(p1==false AND p2=='value5', p4==1, p5==2);
+        - NOT ZeroOrOne(p1==true, p4>1, p5>2);
+        - p4+p5<=5;
+        - p4*p5>=4;
+        - IF Or(p1==false, p4>3) OR NOT ZeroOrOne(p2=='value2', p3=='value5') THEN p2!=p3 AND OnlyOne(p1, p2);
+        - IF p4+p5<=5 AND p4*p5>=4 THEN p2=='this is the only invalid dependency';
   /conflictiveParameterNames:
     get:
       parameters:

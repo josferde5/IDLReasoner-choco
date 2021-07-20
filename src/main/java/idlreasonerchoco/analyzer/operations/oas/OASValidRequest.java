@@ -33,46 +33,59 @@ public class OASValidRequest implements AnalysisOperation {
 
     public boolean analyze() throws IDLException {
         List<Constraint> cons = new ArrayList<>();
-        if (request.keySet().stream().allMatch(param -> mapper.getVariablesMap().containsKey(Utils.parseIDLParamName(param)))) {
-
-            for (Parameter parameter : mapper.getParameters()) {
-                BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
-                if (request.containsKey(parameter.getName())) {
-                    IntVar paramVar = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName())).asIntVar();
-                    Constraint con = mapper.getChocoModel().and(mapper.getChocoModel().arithm(varSet, "=", 1),
-                            mapper.getChocoModel().arithm(paramVar, "=", mapValueToConstraint(request.get(parameter.getName()), parameter.getSchema().getType())));
-
-                    cons.add(con);
-                    con.post();
-                } else if (!partial) {
-                    Constraint setCon = mapper.getChocoModel().arithm(varSet, "=", 0);
-                    cons.add(setCon);
-                    setCon.post();
-                }
-
-            }
-            boolean result = mapper.getChocoModel().getSolver().solve();
-            cons.forEach(x -> mapper.getChocoModel().unpost(x));
-            return result;
-        } else {
-            ExceptionManager.rethrow(LOG, ErrorType.ERROR_UNKNOWN_PARAM_IN_REQUEST.toString());
+        try {
+	        if (request.keySet().stream().allMatch(param -> mapper.getVariablesMap().containsKey(Utils.parseIDLParamName(param)))) {
+	
+	            for (Parameter parameter : mapper.getParameters()) {
+	                BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
+	                if (request.containsKey(parameter.getName())) {
+	                    IntVar paramVar = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName())).asIntVar();
+	                    Constraint con = mapper.getChocoModel().and(mapper.getChocoModel().arithm(varSet, "=", 1),
+	                            mapper.getChocoModel().arithm(paramVar, "=", mapValueToConstraint(request.get(parameter.getName()), parameter.getSchema().getType())));
+	
+	                    cons.add(con);
+	                    con.post();
+	                } else if (!partial) {
+	                    Constraint setCon = mapper.getChocoModel().arithm(varSet, "=", 0);
+	                    cons.add(setCon);
+	                    setCon.post();
+	                }
+	
+	            }
+	            boolean result = mapper.getChocoModel().getSolver().solve();
+	            cons.forEach(x -> mapper.getChocoModel().unpost(x));
+	            return result;
+	        } else {
+	        	throw new IDLException(ErrorType.ERROR_UNKNOWN_PARAM_IN_REQUEST.toString());
+	        }
+        } catch (IDLException e) {
+        	ExceptionManager.log(LOG, ErrorType.ERROR_VALIDATING_REQUEST.toString(), e);
             return false;
         }
     }
 
     private Integer mapValueToConstraint(String paramValue, String type) throws IDLException {
-        switch (ParameterType.valueOf(type.toUpperCase())) {
-            case STRING:
-            case ARRAY:
-                return mapper.stringToInt(paramValue);
-            case NUMBER:
-            case INTEGER:
-                return Integer.valueOf(paramValue);
-            case BOOLEAN:
-                return Boolean.parseBoolean(paramValue) ? 1 : 0;
-            default:
-                ExceptionManager.rethrow(LOG, ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + type);
-                return null;
-        }
+    	try {
+	        switch (ParameterType.valueOf(type.toUpperCase())) {
+	            case STRING:
+	            case ARRAY:
+	                return mapper.getSolver().stringToInt(paramValue);
+	            case NUMBER:
+	            case INTEGER:
+	                return Integer.valueOf(paramValue);
+	            case BOOLEAN:
+	            	if (Boolean.toString(true).equals(paramValue)) {
+	            		return 1;
+	            	} else if (Boolean.toString(false).equals(paramValue)) {
+	            		return 0;
+	            	}
+	            default:
+				throw new IDLException(
+						ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " -> type: " + type + ", value: " + paramValue);
+	        }
+    	} catch (Exception e) {
+    		ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_TO_CONSTRAINT.toString(), e);
+            return null;
+    	}
     }
 }

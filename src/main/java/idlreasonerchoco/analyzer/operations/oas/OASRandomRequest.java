@@ -19,7 +19,6 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 public class OASRandomRequest implements RequestGenerationOperation {
 
     private static final Logger LOG = Logger.getLogger(OASRandomRequest.class);
-    private static final String DEFAULT_VALUE = "lorem";
 
     private final OASMapper mapper;
     private final boolean valid;
