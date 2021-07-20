@@ -15,6 +15,7 @@ import idlreasonerchoco.configuration.ErrorType;
 import idlreasonerchoco.configuration.IDLConfiguration;
 import idlreasonerchoco.configuration.IDLException;
 import idlreasonerchoco.model.OperationType;
+import idlreasonerchoco.solver.OASSolver;
 import idlreasonerchoco.utils.ExceptionManager;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;

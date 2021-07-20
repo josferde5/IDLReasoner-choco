@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import idlreasonerchoco.analyzer.Analyzer;
 import idlreasonerchoco.analyzer.OASAnalyzer;
+import idlreasonerchoco.configuration.IDLException;
 
 public class AdditionalTests {
 
@@ -549,5 +552,16 @@ public class AdditionalTests {
         assertFalse(analyzer.isValidPartialRequest(partiallyInvalidRequest), "The partial request should be NOT valid");
 
         System.out.println("Test passed: multipleOperationsTest.");
+    }
+    
+
+    @ParameterizedTest
+    @ValueSource(strings = {"noParams", "oneParamBoolean", "oneDependencyRequires", "oneDependencyOr", "oneDependencyOnlyOne",
+            "oneDependencyAllOrNone", "oneDependencyZeroOrOne", "oneDependencyArithRel", "oneDependencyComplex"})
+    void randomValidRequestTest(String operation) throws IDLException {
+        Analyzer analyzer = new OASAnalyzer("oas", "./src/test/resources/OAS_test_suite.yaml", "/" + operation, "get");
+        Map<String, String> validRequest = analyzer.getRandomValidRequest();
+        assertTrue(analyzer.isValidRequest(validRequest), "The request should be VALID");
+        System.out.println("Test passed: " + operation);
     }
 }

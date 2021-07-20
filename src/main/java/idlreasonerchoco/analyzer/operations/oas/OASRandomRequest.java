@@ -71,7 +71,7 @@ public class OASRandomRequest implements RequestGenerationOperation {
         switch (ParameterType.valueOf(type.toUpperCase())) {
             case STRING:
             case ARRAY:
-                return mapper.getStringToIntMap().inverse().get(intValue % mapper.getStringToIntMap().size());
+                return mapper.getStringToIntMap().inverse().get(intValue) != null ? mapper.getStringToIntMap().inverse().get(intValue) : "toString" + intValue;
             case NUMBER:
             case INTEGER:
                 return intValue.toString();

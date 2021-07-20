@@ -1,4 +1,4 @@
-package idlreasonerchoco.configuration;
+package idlreasonerchoco.test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import idlreasonerchoco.analyzer.Analyzer;
 import idlreasonerchoco.analyzer.OASAnalyzer;
+import idlreasonerchoco.configuration.IDLException;
 
 
 public class ValidIDLTest {

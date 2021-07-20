@@ -1,4 +1,4 @@
-package idlreasonerchoco.mapper;
+package idlreasonerchoco.solver;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import idlreasonerchoco.utils.ExceptionManager;
 import idlreasonerchoco.utils.Utils;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
-public class OASSolver {
+public class OASSolver extends Solver {
 	private static final Logger LOG = Logger.getLogger(OASSolver.class);
 
     private static final String DUMMY_URI = "dummy:/dummy.idl";
@@ -39,19 +39,19 @@ public class OASSolver {
 
     private HashBiMap<String, Integer> stringToIntMap;
     private Map<String, Variable> variablesMap;
-    private Model chocoModel;
 
-    public OASSolver(Map<String, List<String>> data, List<Parameter> parameters, String operationPath, String idl) throws IDLException {
-        this.chocoModel = new Model(operationPath);
+	public OASSolver(Map<String, List<String>> data, List<Parameter> parameters, String operationPath, String idl) throws IDLException {
+        super(operationPath);
         this.variablesMap = new HashMap<>();
         this.stringToIntMap = HashBiMap.create();
-        this.stringToIntMap.put("default", 0);
+        this.stringToInt("default");
         
         this.mapVariables(data, parameters);
         this.generateConstraintsFromIDL(idl);
     }
 
-    public Model getChocoModel() {
+
+	public Model getChocoModel() {
         return chocoModel;
     }
     
@@ -62,7 +62,7 @@ public class OASSolver {
     public Map<String, Variable> getVariablesMap() {
         return variablesMap;
     }
-    
+        
     private void mapVariables(Map<String, List<String>> data, List<Parameter> parameters) throws IDLException {
         for (Parameter parameter : parameters) {
             String paramType = parameter.getSchema().getType();
