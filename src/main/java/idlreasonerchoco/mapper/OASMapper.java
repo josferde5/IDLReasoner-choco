@@ -40,7 +40,7 @@ public class OASMapper extends Mapper {
     private Operation operation;
     private List<Parameter> parameters;
     private OASSolver solver;
-    Map<String, List<String>> data;
+    private Map<String, List<String>> data;
     
     public OASMapper(IDLConfiguration configuration, Map<String, List<String>> data) throws IDLException {
         super(configuration);
