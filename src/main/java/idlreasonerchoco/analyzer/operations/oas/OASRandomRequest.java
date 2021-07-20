@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -33,20 +34,18 @@ public class OASRandomRequest implements RequestGenerationOperation {
         Map<String, String> request = null;
         if (valid) {
             request = mapRequest();
+            mapper.getChocoModel().getSolver().reset();
         } else {
-            Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
-                mapper.getChocoModel().unpost(x);
-                x.getOpposite().post();
-            });
-
-            request = mapRequest();
-
-            Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
-                mapper.getChocoModel().unpost(x);
-                x.getOpposite().post();
-            });
+        	Constraint[] oppCons = Stream.of(mapper.getChocoModel().getCstrs()).map(x->x.getOpposite()).toArray(Constraint[]::new);
+            Stream.of(mapper.getChocoModel().getCstrs()).forEach(x -> mapper.getChocoModel().unpost(x));
+            
+            if(oppCons.length > 0) {
+            	mapper.getChocoModel().or(oppCons).post();
+            	request = mapRequest();
+            }
+            
+            mapper.restartSolver();
         }
-        mapper.getChocoModel().getSolver().reset();
         return request;
     }
 
@@ -63,7 +62,6 @@ public class OASRandomRequest implements RequestGenerationOperation {
                 }
             }
         }
-        mapper.getChocoModel().getSolver().reset();
         return request;
     }
 

@@ -36,7 +36,7 @@ public class RandomInvalidRequestTest {
         Analyzer analyzer = new OASAnalyzer("oas", "./src/test/resources/OAS_test_suite.yaml", "/oneParamString", "get");
         Map<String, String> invalidRequest = analyzer.getRandomInvalidRequest();
         // System.out.println(invalidRequest);
-        assertNull(invalidRequest, "There should be no invalid request for this operation");
+        assertFalse(analyzer.isValidRequest(invalidRequest), "The request should be NOT valid");
         System.out.println("Test passed: one_param_string_no_deps.");
     }
 

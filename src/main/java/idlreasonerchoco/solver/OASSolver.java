@@ -44,7 +44,6 @@ public class OASSolver extends Solver {
         super(operationPath);
         this.variablesMap = new HashMap<>();
         this.stringToIntMap = HashBiMap.create();
-        this.stringToInt("default");
         
         this.mapVariables(data, parameters);
         this.generateConstraintsFromIDL(idl);
