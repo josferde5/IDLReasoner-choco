@@ -30,6 +30,7 @@ public class OASDeadParameter implements AnalysisOperation {
             mapper.getChocoModel().getSolver().reset();
             boolean result = !mapper.getChocoModel().getSolver().solve();
             mapper.getChocoModel().unpost(cons);
+            mapper.getChocoModel().getSolver().reset();
             return result;
         } else {
             ExceptionManager.rethrow(LOG, ErrorType.ERROR_OPERATION_PARAM.toString());

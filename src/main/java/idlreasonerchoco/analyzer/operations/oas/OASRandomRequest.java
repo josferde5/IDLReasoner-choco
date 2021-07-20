@@ -30,23 +30,24 @@ public class OASRandomRequest implements RequestGenerationOperation {
 
     public Map<String, String> generate() throws IDLException {
         mapper.getChocoModel().getSolver().reset();
+        Map<String, String> request = null;
         if (valid) {
-            return mapRequest();
+            request = mapRequest();
         } else {
             Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
                 mapper.getChocoModel().unpost(x);
                 x.getOpposite().post();
             });
 
-            Map<String, String> request = mapRequest();
+            request = mapRequest();
 
             Stream.of(mapper.getChocoModel().getCstrs()).forEach(x->{
                 mapper.getChocoModel().unpost(x);
                 x.getOpposite().post();
             });
-
-            return request;
         }
+        mapper.getChocoModel().getSolver().reset();
+        return request;
     }
 
     private Map<String, String> mapRequest() throws IDLException {
@@ -62,6 +63,7 @@ public class OASRandomRequest implements RequestGenerationOperation {
                 }
             }
         }
+        mapper.getChocoModel().getSolver().reset();
         return request;
     }
 

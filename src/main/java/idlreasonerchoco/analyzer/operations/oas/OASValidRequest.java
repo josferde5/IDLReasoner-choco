@@ -33,8 +33,9 @@ public class OASValidRequest implements AnalysisOperation {
 
     public boolean analyze() throws IDLException {
         List<Constraint> cons = new ArrayList<>();
+        mapper.getChocoModel().getSolver().reset();
         try {
-	        if (request.keySet().stream().allMatch(param -> mapper.getVariablesMap().containsKey(Utils.parseIDLParamName(param)))) {
+	        if (request != null && request.keySet().stream().allMatch(param -> mapper.getVariablesMap().containsKey(Utils.parseIDLParamName(param)))) {
 	
 	            for (Parameter parameter : mapper.getParameters()) {
 	                BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(parameter.getName()) + "Set").asBoolVar();
@@ -54,6 +55,7 @@ public class OASValidRequest implements AnalysisOperation {
 	            }
 	            boolean result = mapper.getChocoModel().getSolver().solve();
 	            cons.forEach(x -> mapper.getChocoModel().unpost(x));
+	            mapper.getChocoModel().getSolver().reset();
 	            return result;
 	        } else {
 	        	throw new IDLException(ErrorType.ERROR_UNKNOWN_PARAM_IN_REQUEST.toString());

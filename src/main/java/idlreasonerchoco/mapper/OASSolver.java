@@ -163,7 +163,7 @@ public class OASSolver {
             this.chocoModel.getSolver().setRestartOnSolutions();
             this.chocoModel.getSolver().setSearch(
 					Search.randomSearch(variablesMap.values().stream().map(x -> x.asIntVar()).toArray(IntVar[]::new), 
-					System.currentTimeMillis() * (long)(Math.random()*11)));
+					System.currentTimeMillis()));
             
         } catch (Exception e) {
             ExceptionManager.rethrow(LOG, ErrorType.ERROR_MAPPING_CONSTRAINTS_FROM_IDL.toString(), e);

@@ -23,6 +23,9 @@ public class OASFalseOptional implements AnalysisOperation {
     }
 
     public boolean analyze() throws IDLException {
+    	if(mapper.getParameters().stream().anyMatch(x -> x.getName().equals(paramName) && x.getRequired())) {
+    		return false;
+    	}
         if (mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set") != null) {
             boolean consistent = new OASConsistent(mapper).analyze();
             mapper.getChocoModel().getSolver().reset();
@@ -31,6 +34,7 @@ public class OASFalseOptional implements AnalysisOperation {
             cons.post();
             boolean result = consistent && !mapper.getChocoModel().getSolver().solve();
             mapper.getChocoModel().unpost(cons);
+            mapper.getChocoModel().getSolver().reset();
             return result;
         } else {
             ExceptionManager.rethrow(LOG, ErrorType.ERROR_OPERATION_PARAM.toString());
