@@ -6,5 +6,7 @@ addons:
     organization: "josferde5"
     token:
       secure: aS6G56NjfBaQ6jc7JDGFYIr/PViEoFv7eHRvaP6v0p4oanIa1DvLJNTSsh0/wivmXDsTbIUtTJ6j7NGP5Kscc/edLxBuPfIgjI74JsqCxY2MaiQBpmlknsSWJ+jlscm5teuQq7OtrOpkWcLoZYR8MXcBvsPfsCGDjwMuzS3+5/iKm3q1GnCmkGkUpZdGRsfFDh0gG1hil8NuYYpPHQec+fdEUWsX+HL4lT1UdFw3H+gB3FVEPJiQbcB4LFkZ5LzthHEyKurW8tMBnoit3VewYv67sWmQztB2dQw8A8C068fMXW/v16GUYa/NSk2ZPJecY4xAmcYHCoPMbZv9BrZdUhZn5mJw/hoZlnAIr82ID9bEbwVOXXdx1GvV3T6Toy8rrYZ6h+NBCEp5sCI5F8ejh3Ef1m8J+UrjQ+2OFtzWpztFtEtThtEjOVtFCSRa/PDqKXy8pTVA1HeZKpN92MTim1HvsUoo4dLLSOAQCAYxKqi+f1wXGTMmVEr6YMO7PCclN5GH9Ynq0iucOyAbMnomZYBv1KMfWRorvftbklbVhFLcqL1Yuawh8uJXm9ePo7MyjjOWRiKxvZhq84W1HNWirLR0qMof1VFPnQA2mecVj0xk6rm28y0JRtAtsMn0HpalY55MGxeJ5g9AvkAWabeEFGoCpGjnKIHWiEAEAhSJ2xs=
+install:
+  - ./scripts/install_dependencies.sh
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=josferde5_IDLReasoner-choco

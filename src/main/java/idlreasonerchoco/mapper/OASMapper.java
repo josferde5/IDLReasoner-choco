@@ -174,11 +174,11 @@ public class OASMapper extends Mapper {
     
     public void updateData(Map<String, List<String>> data) throws IDLException {
     	this.data = data;
-    	restartSolver();
+    	restartSolver(true);
     }
-    
-    public void restartSolver() throws IDLException {
-    	this.solver = new OASSolver(data, parameters, configuration.getOperationPath(), idlFromOas);
+
+    public void restartSolver(boolean valid) throws IDLException {
+    	this.solver = new OASSolver(data, parameters, configuration.getOperationPath(), idlFromOas, valid);
     }
 
 	public Model getChocoModel() {

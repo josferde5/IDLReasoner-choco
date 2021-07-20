@@ -2,12 +2,14 @@ package idlreasonerchoco.solver;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
@@ -39,14 +41,21 @@ public class OASSolver extends Solver {
 
     private HashBiMap<String, Integer> stringToIntMap;
     private Map<String, Variable> variablesMap;
+    private boolean valid = true;
 
-	public OASSolver(Map<String, List<String>> data, List<Parameter> parameters, String operationPath, String idl) throws IDLException {
+    public OASSolver(Map<String, List<String>> data, List<Parameter> parameters, String operationPath, String idl, boolean valid) throws IDLException {
         super(operationPath);
+        this.valid = valid;
         this.variablesMap = new HashMap<>();
         this.stringToIntMap = HashBiMap.create();
-        
-        this.mapVariables(data, parameters);
-        this.generateConstraintsFromIDL(idl);
+
+        List<Constraint> requiredParameters = this.mapVariables(data, parameters);
+        this.generateConstraintsFromIDL(idl, requiredParameters);
+
+    }
+
+	public OASSolver(Map<String, List<String>> data, List<Parameter> parameters, String operationPath, String idl) throws IDLException {
+        this(data, parameters, operationPath, idl, true);
     }
 
 
@@ -62,7 +71,8 @@ public class OASSolver extends Solver {
         return variablesMap;
     }
         
-    private void mapVariables(Map<String, List<String>> data, List<Parameter> parameters) throws IDLException {
+    private List<Constraint> mapVariables(Map<String, List<String>> data, List<Parameter> parameters) throws IDLException {
+        List<Constraint> requiredParameters = new ArrayList<>();
         for (Parameter parameter : parameters) {
             String paramType = parameter.getSchema().getType();
             List<?> paramEnum = parameter.getSchema().getEnum();
@@ -100,10 +110,14 @@ public class OASSolver extends Solver {
                 ExceptionManager.rethrow(LOG, ErrorType.ERROR_IN_PARAMETER_TYPE.toString() + " :" + paramType);
             }
 
-            if (Boolean.TRUE.equals(parameter.getRequired())) {
+            if (Boolean.TRUE.equals(parameter.getRequired()) && valid) {
                 this.chocoModel.arithm(varParamSet, EQUALS, 1).post();
+            } else if (Boolean.TRUE.equals(parameter.getRequired())) {
+                requiredParameters.add(this.chocoModel.arithm(varParamSet, EQUALS, 0));
             }
         }
+
+        return requiredParameters;
     }
     
 
@@ -147,7 +161,7 @@ public class OASSolver extends Solver {
         }
     }
     
-    private void generateConstraintsFromIDL(String idl) throws IDLException {
+    private void generateConstraintsFromIDL(String idl, List<Constraint> requiredParameters) throws IDLException {
         IDLGenerator idlGenerator = new IDLGenerator(stringToIntMap, variablesMap, chocoModel);
         Injector injector = new IDLStandaloneSetupGenerated().createInjectorAndDoEMFRegistration();
         XtextResourceSet resourceSet = injector.getInstance(XtextResourceSet.class);
@@ -156,7 +170,7 @@ public class OASSolver extends Solver {
 
         try {
             resource.load(in, resourceSet.getLoadOptions());
-            Response response = idlGenerator.doGenerateChocoModel(resource);
+            Response response = idlGenerator.doGenerateChocoModel(resource, valid, requiredParameters);
             this.stringToIntMap = HashBiMap.create(response.getStringToIntMap());
             this.chocoModel = response.getChocoModel();
             this.chocoModel.getSolver().setRestartOnSolutions();

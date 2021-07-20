@@ -2,10 +2,8 @@ package idlreasonerchoco.analyzer.operations.oas;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -36,15 +34,11 @@ public class OASRandomRequest implements RequestGenerationOperation {
             request = mapRequest();
             mapper.getChocoModel().getSolver().reset();
         } else {
-        	Constraint[] oppCons = Stream.of(mapper.getChocoModel().getCstrs()).map(x->x.getOpposite()).toArray(Constraint[]::new);
-            Stream.of(mapper.getChocoModel().getCstrs()).forEach(x -> mapper.getChocoModel().unpost(x));
-            
-            if(oppCons.length > 0) {
-            	mapper.getChocoModel().or(oppCons).post();
-            	request = mapRequest();
+            mapper.restartSolver(false);
+            if (mapper.getChocoModel().getCstrs().length > 0) {
+                request = mapRequest();
             }
-            
-            mapper.restartSolver();
+            mapper.restartSolver(true);
         }
         return request;
     }
