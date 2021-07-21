@@ -6,7 +6,7 @@
 
     <groupId>es.us.isa</groupId>
     <artifactId>IDLReasoner-choco</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <name>IDLReasoner-choco</name>
     <description>A choco-based Java library for analyzing IDL specifications</description>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>es.us.isa</groupId>
             <artifactId>idl-choco</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>

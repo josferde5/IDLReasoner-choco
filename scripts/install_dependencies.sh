@@ -1,1 +1,1 @@
-mvn install:install-file -Dfile=lib/idl-choco.jar -DgroupId=es.us.isa -DartifactId=idl-choco -Dversion=0.0.1-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=lib/idl-choco.jar -DgroupId=es.us.isa -DartifactId=idl-choco -Dversion=1.0.0 -Dpackaging=jar
