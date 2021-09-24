@@ -3,12 +3,26 @@ package idlreasonerchoco.mapper;
 import idlreasonerchoco.configuration.IDLConfiguration;
 import idlreasonerchoco.configuration.IDLException;
 
+/**
+ * An Abstract class that initializes configuration object and based on that it
+ * reads and generates IDL from open API specification.
+ *
+ */
 public abstract class Mapper {
-	
-    protected final IDLConfiguration configuration;
 
-    protected Mapper(IDLConfiguration configuration) throws IDLException {
-        this.configuration = configuration;
-    }
+	/**
+	 * IDLConfiguration object.
+	 */
+	protected final IDLConfiguration configuration;
+
+	/**
+	 * Creates Mapper object.
+	 * 
+	 * @param configuration IDLConfiguration object.
+	 * @throws IDLException IDL exception.
+	 */
+	protected Mapper(IDLConfiguration configuration) throws IDLException {
+		this.configuration = configuration;
+	}
 
 }

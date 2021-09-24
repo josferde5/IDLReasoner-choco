@@ -1,13 +1,46 @@
 package idlreasonerchoco.configuration;
 
+/**
+ * IDLConfiguration setups IDL configurations. It configures specification type,
+ * API specification, operation path, and operation type.
+ */
 public class IDLConfiguration {
-    
-    private final String specificationType;
-    private final String operationPath;
-    private final String operationType;
-    private String apiSpecification;
-    private boolean specAsString;
 
+	/**
+	 * Specification type.
+	 */
+	private final String specificationType;
+
+	/**
+	 * Operation path.
+	 */
+	private final String operationPath;
+
+	/**
+	 * Operation type.
+	 */
+	private final String operationType;
+
+	/**
+	 * API specification.
+	 */
+	private String apiSpecification;
+
+	/**
+	 * 
+	 */
+	private boolean specAsString;
+
+	/**
+	 * Constructs a new IDLConfiguration object, and initializes all the required
+	 * configurations.
+	 * 
+	 * @param specificationType specification type.
+	 * @param apiSpecification API specification.
+	 * @param operationPath operation path.
+	 * @param operationType operation type.
+	 * @param specAsString true or false.
+	 */
 	public IDLConfiguration(String specificationType, String apiSpecification, String operationPath,
 			String operationType, boolean specAsString) {
 		this.specificationType = specificationType;
@@ -17,23 +50,43 @@ public class IDLConfiguration {
 		this.specAsString = specAsString;
 	}
 
-    public String getSpecificationType() {
-        return specificationType;
-    }
-    
-    public String getApiSpecification() {
-        return apiSpecification;
-    }
+	/**
+	 * Returns specification type.
+	 * 
+	 * @return specification type.
+	 */
+	public String getSpecificationType() {
+		return specificationType;
+	}
 
-    public String getOperationPath() {
-        return operationPath;
-    }
+	/**
+	 * Returns API specification.
+	 * 
+	 * @return API specification
+	 */
+	public String getApiSpecification() {
+		return apiSpecification;
+	}
 
-    public String getOperationType() {
-        return operationType;
-    }
+	/**
+	 * Returns operation path.
+	 * 
+	 * @return operation path.
+	 */
+	public String getOperationPath() {
+		return operationPath;
+	}
 
-    public boolean isSpecAsString() {
-        return specAsString;
-    }
+	/**
+	 * Returns operation type.
+	 * 
+	 * @return operation type.
+	 */
+	public String getOperationType() {
+		return operationType;
+	}
+
+	public boolean isSpecAsString() {
+		return specAsString;
+	}
 }
