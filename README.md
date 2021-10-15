@@ -4,14 +4,28 @@ IDLReasoner-choco is a Java tool that enables analysis of IDL specifications aut
 
 ## Index:
 
-1. [IDL Specification](#idl-specification)
+1. [IDL Specification](#inter--parameter-dependency-language)
 2. [Quickstart guide](#quickstart-guide)
 3. [How to use it?](#how-to-use-it)
 4. [Analysis operations](#analysis-operations)
 5. [Licence](#licence)
 
 
-## IDL Specification:
+## Inter-parameter Dependency Language:
+Inter-parameter Dependency Language (IDL) is a textual domain-specific language for the specification of dependencies among input parameters in web APIs. IDL is designed to express the seven types of inter-parameter dependencies (Requires, Or, OnlyOne, AllOrNone, ZeroOrOne, Arithmetic/Relational, and Complex). Following are some examples of dependencies described in IDL. To know more, visit the [IDL repository](https://github.com/isa-group/IDL) and the [sample IDL specifications](https://github.com/isa-group/IDL/tree/master/es.us.isa.interparamdep/resources/expressiveness_evaluation).
+
+    IF p1 THEN p2=='A';
+    IF p1 AND p2 THEN NOT (p3 OR p4);
+    IF videoDefinition THEN type=='video';                           // Requires
+    Or(query, type);                                                 // Or
+    ZeroOrOne(radius, rankby=='distance');                           // ZeroOrOne
+    AllOrNone(location, radius);                                     // AllOrNone
+    OnlyOne(amount_off, percent_off);                                // OnlyOne
+    publishedAfter >= publishedBefore;                               // Relational
+    limit + offset <= 1000;                                          // Arithmetic
+    IF intent=='browse' THEN OnlyOne(ll AND radius, sw AND ne);      // Complex
+
+
 ## Quickstart guide:
 To get started with IDLReasoner-choco, download the code and move to the parent directory:
 
