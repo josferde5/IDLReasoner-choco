@@ -4,11 +4,11 @@ IDLReasoner-choco is a Java tool that enables analysis of IDL specifications aut
 
 ## Index:
 
-1. [IDL Specification]()
-2. [Quickstart guide]()
-3. [How to use it?]()
-4. [Analysis operations]()
-5. [Licence]()
+1. [IDL Specification](#idl-specification)
+2. [Quickstart guide](#quickstart-guide)
+3. [How to use it?](#how-to-use-it)
+4. [Analysis operations](#analysis-operations)
+5. [Licence](#licence)
 
 
 ## IDL Specification:
