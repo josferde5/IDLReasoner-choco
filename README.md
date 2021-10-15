@@ -35,6 +35,7 @@ IDLReasoner-choco relies on idl-choco.jar library located in the lib/ folder. To
 - **Step 2:**	Then, we perform an analysis operation (i.e., analyzer.isDeadParameter("p1")).
 - **Step 3:** Finally, we obtain the result of analysis operation.
 
+
 ## Analysis operations:
 
 - **isConsistent:** This operation receives as input the IDL specification of an API operation and its list of parameters, and returns a Boolean indicating whether the specification is consistent or not. An IDL specification is consistent if there exists at least one request satisfying all the dependencies of the specification.
