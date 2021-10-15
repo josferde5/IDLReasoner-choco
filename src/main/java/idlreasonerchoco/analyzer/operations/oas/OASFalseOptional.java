@@ -10,35 +10,62 @@ import idlreasonerchoco.mapper.OASMapper;
 import idlreasonerchoco.utils.ExceptionManager;
 import idlreasonerchoco.utils.Utils;
 
+/**
+ * This class implements AnalysisOperation. It uses {@link #analyze()} to check if
+ * the parameter is false optional.
+ */
 public class OASFalseOptional implements AnalysisOperation {
 
-    private static final Logger LOG = Logger.getLogger(OASFalseOptional.class);
+	private static final Logger LOG = Logger.getLogger(OASFalseOptional.class);
 
-    private final OASMapper mapper;
-    private final String paramName;
+	/**
+	 * OASMapper object.
+	 * @see OASMapper
+	 */
+	private final OASMapper mapper;
+	
+	/**
+	 * Parameter name.
+	 */
+	private final String paramName;
 
-    public OASFalseOptional(OASMapper mapper, String paramName) {
-        this.mapper = mapper;
-        this.paramName = paramName;
-    }
+	/**
+	 * Creates OASFalseOptional object.
+	 * 
+	 * @param mapper OASMapper object.
+	 * @param paramName parameter name.
+	 * @see OASMapper
+	 */
+	public OASFalseOptional(OASMapper mapper, String paramName) {
+		this.mapper = mapper;
+		this.paramName = paramName;
+	}
 
-    public boolean analyze() throws IDLException {
-    	if(mapper.getParameters().stream().anyMatch(x -> x.getName().equals(paramName) && x.getRequired())) {
-    		return false;
-    	}
-        if (mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set") != null) {
-            boolean consistent = new OASConsistent(mapper).analyze();
-            mapper.getChocoModel().getSolver().reset();
-            BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set").asBoolVar();
-            Constraint cons = mapper.getChocoModel().arithm(varSet, "=", 0);
-            cons.post();
-            boolean result = consistent && !mapper.getChocoModel().getSolver().solve();
-            mapper.getChocoModel().unpost(cons);
-            mapper.getChocoModel().getSolver().reset();
-            return result;
-        } else {
-            ExceptionManager.rethrow(LOG, ErrorType.ERROR_OPERATION_PARAM.toString());
-            return false;
-        }
-    }
+	/**
+	 * Returns true if the parameter is false optional. The parameter is false
+	 * optional, if there is no solutions after removing the parameter from a
+	 * consistent model.
+	 * 
+	 * @return true if the parameter is false optional, otherwise false.
+	 * 
+	 */
+	public boolean analyze() throws IDLException {
+		if (mapper.getParameters().stream().anyMatch(x -> x.getName().equals(paramName) && x.getRequired())) {
+			return false;
+		}
+		if (mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set") != null) {
+			boolean consistent = new OASConsistent(mapper).analyze();
+			mapper.getChocoModel().getSolver().reset();
+			BoolVar varSet = mapper.getVariablesMap().get(Utils.parseIDLParamName(paramName) + "Set").asBoolVar();
+			Constraint cons = mapper.getChocoModel().arithm(varSet, "=", 0);
+			cons.post();
+			boolean result = consistent && !mapper.getChocoModel().getSolver().solve();
+			mapper.getChocoModel().unpost(cons);
+			mapper.getChocoModel().getSolver().reset();
+			return result;
+		} else {
+			ExceptionManager.rethrow(LOG, ErrorType.ERROR_OPERATION_PARAM.toString());
+			return false;
+		}
+	}
 }

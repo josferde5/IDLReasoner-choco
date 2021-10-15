@@ -1,5 +1,9 @@
 package idlreasonerchoco.configuration;
 
+/**
+ * This enum represents error types.
+ */
+
 public enum ErrorType {
 	ERROR_READING_PROPERTIES("Error reading the properties, using default values"),
 	ERROR_CREATING_FILE("Error creating file"),
@@ -17,12 +21,18 @@ public enum ErrorType {
 	ERROR_VALIDATING_REQUEST("Error validating the request"),
 	ERROR_MAPPING_TO_CONSTRAINT("Error mapping request values to constraint values");
 	
+	/**
+	 * Error message.
+	 */
 	private String msg;
 	
 	ErrorType(String msg) {
 		this.msg = msg;
 	}
 
+	/**
+	 * Returns error message.
+	 */
 	@Override
 	public String toString() {
 		return this.msg;

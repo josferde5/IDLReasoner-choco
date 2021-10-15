@@ -332,7 +332,7 @@ public class ValidPartialRequestTest {
         System.out.println("Test passed: combinatorial4_invalid.");
     }
 
-    /**
+    /*
      * Is fully valid: false
      * Dependency violated: -
      * Explanation: The request is invalid because all parameters are required.
@@ -347,7 +347,7 @@ public class ValidPartialRequestTest {
         System.out.println("Test passed: combinatorial5_valid.");
     }
 
-    /**
+    /*
      * Dependency violated: Or(p1==p6, p4==p7);
      * Explanation: Removing p7 would make the request partially valid.
      */
@@ -391,7 +391,7 @@ public class ValidPartialRequestTest {
 //        System.out.println("Test passed: combinatorial7_invalid.");
 //    }
 
-    /**
+    /*
      * Is fully valid: false
      * Dependency violated: AllOrNone(p1, p5)
      * Explanation: It is partially valid, since including p5 would make it fully valid.
@@ -411,7 +411,7 @@ public class ValidPartialRequestTest {
         System.out.println("Test passed: combinatorial8_valid.");
     }
 
-    /**
+    /*
      * Dependency violated: IF p1 THEN (p3==true OR (NOT p3)) AND NOT p7 AND p9=='fixed string';
      * Explanation: Removing p7 would make the request partially valid.
      */
