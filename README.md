@@ -102,9 +102,9 @@ IDLReasoner-choco relies on idl-choco.jar library located in the lib/ folder. To
                 
 - **isValidRequest:** This operation takes as input the IDL specification of an API operation, its list of parameters, and a service request and returns a Boolean indicating whether the request is valid or not.
 
-    -	Input: (1) IDL specification. (2) API operation parameters. (3) Request to check.
-    -	Output: True if the request is valid, otherwise false.
-    -	Example:
+    -	**Input:** (1) IDL specification. (2) API operation parameters. (3) Request to check.
+    -	**Output:** True if the request is valid, otherwise false.
+    -	**Example:**
     
             @Test
                 public void one_dep_or_valid() throws IDLException {
