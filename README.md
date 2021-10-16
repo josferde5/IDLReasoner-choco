@@ -117,7 +117,7 @@ IDLReasoner-choco relies on idl-choco.jar library located in the lib/ folder. To
 - **isValidPartialRequest:** This operation is analogous to the previous one but the input request is partial or incomplete, meaning that some other parameters should still be included to make it a full valid request.
 
     -	**Input:** (1) IDL specification. (2) API operation parameters. (3) Request to check.
-    -	**Output: **True if the request is partially valid, otherwise false.
+    -	**Output:** True if the request is partially valid, otherwise false.
     -	**Example:**
     
               @Test
