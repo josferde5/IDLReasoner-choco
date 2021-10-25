@@ -1,10 +1,10 @@
-# IDLReasoner-choco
-## IDLReasoner-choco: 
-IDLReasoner-choco is a Java tool that enables analysis of IDL specifications automatically and performs several analysis operations on them.
+# IDLAnalyzer
+ 
+IDLAnalyzer is a Java tool that enables analysis of IDL specifications automatically and performs several analysis operations on them.
 
 ## Index:
 
-1. [IDL Specification](#inter--parameter-dependency-language)
+1. [IDL Specification](#inter-parameter-dependency-language)
 2. [Quickstart guide](#quickstart-guide)
 3. [How to use it?](#how-to-use-it)
 4. [Analysis operations](#analysis-operations)
@@ -27,13 +27,14 @@ Inter-parameter Dependency Language (IDL) is a textual domain-specific language 
 
 
 ## Quickstart guide:
-To get started with IDLReasoner-choco, download the code and move to the parent directory:
+To get started with IDLAnalyzer, download the code and move to the parent directory:
 
-        git clone https://github.com/ssegura/IDLReasoner-choco.git
-        cd IDLReasoner-choco
+        git clone https://github.com/ssegura/IDLAnalyzer.git
+        cd IDLAnalyzer
 
 **Installing local dependencies:**
-IDLReasoner-choco relies on idl-choco.jar library located in the lib/ folder. To install it, simply run the following command from the parent directory.
+
+IDLAnalyzer relies on idl.jar library located in the lib/ folder. To install it, simply run the following command from the parent directory.
 
         ./scripts/install_dependencies.sh
 
