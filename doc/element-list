@@ -1,0 +1,8 @@
+idlreasonerchoco.analyzer
+idlreasonerchoco.analyzer.operations.oas
+idlreasonerchoco.configuration
+idlreasonerchoco.mapper
+idlreasonerchoco.model
+idlreasonerchoco.solver
+idlreasonerchoco.test
+idlreasonerchoco.utils

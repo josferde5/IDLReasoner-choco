@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>es.us.isa</groupId>
-    <artifactId>IDLReasoner-choco</artifactId>
+    <artifactId>IDLAnalyzer</artifactId>
     <version>1.0.0</version>
 
-    <name>IDLReasoner-choco</name>
+    <name>IDLAnalyzer</name>
     <description>A choco-based Java library for analyzing IDL specifications</description>
 
     <developers>
@@ -116,7 +116,7 @@
                                     <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                 </manifest>
                             </archive>
-                            <finalName>IDLReasoner-choco-full</finalName>
+                            <finalName>IDLAnalyzer-full</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
